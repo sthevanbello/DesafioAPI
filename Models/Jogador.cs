@@ -15,6 +15,6 @@ namespace ForumGames.Models
         [Required(ErrorMessage = "informe o seu e-mail")]
         [RegularExpression(".+\\@.+\\..+", ErrorMessage = "Insira um e-mail válido")]
         public string Email { get; set; }
-        //public IList<Grupos> Grupos { get; set; }
+        public IList<Grupo> Grupos { get; set; } = new List<Grupo>(); // Utilizado para retornar os grupos dos quais o jogador participa
     }
 }
