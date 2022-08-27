@@ -61,5 +61,48 @@ namespace ForumGames.Controllers
             }
             
         }
+        /// <summary>
+        /// Mostra um jogador passando o seu Id
+        /// </summary>
+        /// <param name="id">Id do jogador a ser buscado</param>
+        /// <returns>Retorna um único jogador</returns>
+        [HttpGet("{id}")]
+        public IActionResult GetJogadorPorId(int id)
+        {
+            try
+            {
+                var jogador = JogadorRepository.GetJogadorPorId(id);
+                if (jogador is null)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(jogador);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+
+        }
     }
 }

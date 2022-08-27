@@ -28,7 +28,40 @@ namespace ForumGames.Repositories
         }
         public Jogador GetJogadorPorId(int id)
         {
-            throw new System.NotImplementedException();
+            Jogador jogador = null;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string script = @"SELECT 
+	                                J.Id AS 'Id_jogador', 
+	                                J.Nome AS 'Nome_Jogador', 
+	                                J.Usuario AS 'Nome_de_Usuario', 
+	                                J.Senha AS 'Senha_de_Usuario', 
+                                    J.Email AS 'Email_do_Usuario'
+                                FROM TB_Jogadores AS J WHERE Id = @id";
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Ler todos os itens da consulta com foreach e while
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        if (result != null && result.HasRows && result.Read())
+                        {
+                            jogador = new Jogador
+                            {
+                                Id = (int)result["Id_jogador"],
+                                Nome = (string)result["Nome_Jogador"],
+                                Usuario = (string)result["Nome_de_Usuario"],
+                                Senha = (string)result["Senha_de_Usuario"],
+                                Email = (string)result["Email_do_Usuario"]
+                            };
+                        }
+                    }
+
+                }
+            }
+            return jogador;
         }
 
         public Jogador GetJogadorPorIdComGrupos(int id)
@@ -58,7 +91,7 @@ namespace ForumGames.Repositories
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
                     {
-                        while (result.Read())
+                        while (result != null && result.HasRows && result.Read())
                         {
                             listaJogadores.Add(new Jogador
                             {
