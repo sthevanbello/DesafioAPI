@@ -1,3 +1,5 @@
+using ForumGames.Interfaces;
+using ForumGames.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -48,6 +50,7 @@ namespace ForumGames
                 var xmlArquivo = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlArquivo));
             });
+            services.AddScoped<IJogadorRepository, JogadorRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
