@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ForumGames.Models
 {
@@ -15,6 +16,10 @@ namespace ForumGames.Models
         [Required(ErrorMessage = "informe o seu e-mail")]
         [RegularExpression(".+\\@.+\\..+", ErrorMessage = "Insira um e-mail válido")]
         public string Email { get; set; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public IList<Grupo> Grupos { get; set; } = new List<Grupo>(); // Utilizado para retornar os grupos dos quais o jogador participa
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public IList<Postagem> Postagens { get; set; } = new List<Postagem>();
     }
 }
