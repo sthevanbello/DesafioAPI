@@ -1,5 +1,6 @@
 ﻿using ForumGames.Interfaces;
 using ForumGames.Models;
+using ForumGames.Utils.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -524,9 +525,30 @@ namespace ForumGames.Repositories
         /// <returns>Retorna o resultado booleano da operação</returns>
         public bool DeleteJogador(int id)
         {
-            throw new System.NotImplementedException();
+            var jogador = GetJogadorPorIdComPostagens(id);
+            if (jogador is null)
+            {
+                return false;
+            }
+            if (jogador.Postagens.Count > 0)
+            {
+                throw new CannotDeleteException("O jogador não pode ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string scriptDelete = @"DELETE FROM TB_Jogadores WHERE Id = @id";
+
+                // Execução no banco
+                using (var cmd = new SqlCommand(scriptDelete, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Id", SqlDbType.NVarChar).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
-
-
     }
 }
