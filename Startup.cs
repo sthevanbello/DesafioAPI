@@ -50,7 +50,14 @@ namespace ForumGames
                 var xmlArquivo = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlArquivo));
             });
+            // AddScoped é necessário para realizar a injeção de dependência nos repositórios
             services.AddScoped<IJogadorRepository, JogadorRepository>();
+            services.AddScoped<ICategoriaGrupoRepository, CategoriaGrupoRepository>();
+            //services.AddScoped<ICategoriaPostagemRepository>();
+            //services.AddScoped<IGrupoRepository>();
+            //services.AddScoped<IPostagemRepository>();
+            //services.AddScoped<IJogadorGrupoRepository>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
