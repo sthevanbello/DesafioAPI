@@ -1,9 +1,11 @@
 ﻿using ForumGames.Interfaces;
 using ForumGames.Models;
 using ForumGames.Repositories;
+using ForumGames.Utils.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace ForumGames.Controllers
@@ -317,10 +319,10 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
-        /// Insere um jogador no banco de dados
+        /// Atualiza um jogador no banco de dados
         /// </summary>
-        /// <param name="jogador">Jogador a ser inserido</param>
-        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        /// <param name="jogador">Jogador a ser atualizado</param>
+        /// <returns>Retorna um jogador após atualizá-lo no banco</returns>
         // POST - Cadastrar
         [HttpPut("{id}")]
         public IActionResult UpdateJogador(int id, Jogador jogador)
@@ -350,6 +352,57 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Excluir um jogador no banco de dados
+        /// </summary>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
+        // POST - Cadastrar
+        [HttpDelete("{id}")]
+        public IActionResult DeleteJogador(int id)
+        {
+            try
+            {
+                var jogadorDeletado = _jogadorRepository.DeleteJogador(id);
+                if (!jogadorDeletado)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(new { msg = "Jogador excluído com sucesso."});
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (CannotDeleteException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha ao excluir o jogador",
+                    erro = ex.Message,
+                });
+            }   
             catch (Exception ex)
             {
                 return StatusCode(500, new
