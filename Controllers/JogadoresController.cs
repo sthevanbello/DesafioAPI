@@ -18,6 +18,7 @@ namespace ForumGames.Controllers
         public Jogador GetJogadorPorId(int id);
         public ICollection<Jogador> GetJogadoresComGrupos();
         public Jogador GetJogadorPorIdComGrupos(int id);
+        public Jogador GetJogadorPorIdComPostagens(int id);
         public Jogador InsertJogador(Jogador jogador);
         public Jogador InsertJogadorComImagem(Jogador jogador);
         public bool UpdateJogador(int id, Jogador jogador);
@@ -149,15 +150,99 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
-        /// Lista todos os jogadores e os grupos dos quais ele participa
+        /// Jogador e os grupos dos quais ele participa
         /// </summary>
-        /// <returns>Retorna os jogadores e seus respectivos grupos</returns>
+        /// <param name="id">Id do jogador a ser buscado</param>
+        /// <returns>Retorna o jogador e os grupos dos quais ele participa</returns>
         [HttpGet("Grupos/{id}")]
-        public IActionResult GetJogadoresPorIdComGrupos(int id)
+        public IActionResult GetJogadorPorIdComGrupos(int id)
         {
             try
             {
                 var jogadores = _jogadorRepository.GetJogadorPorIdComGrupos(id);
+                if (jogadores is null)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }               
+                return Ok(jogadores);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Lista todos os jogadores e as suas postagens feitas
+        /// </summary>
+        /// <returns>Retorna os jogadores e suas respectivas postagens</returns>
+        [HttpGet("Postagens")]
+        public IActionResult GetJogadoresComPostagens()
+        {
+            try
+            {
+                var jogadores = _jogadorRepository.GetJogadoresComPostagens();
+                return Ok(jogadores);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Jogador com as postagens feitas
+        /// </summary>
+        /// <param name="id">Id do jogador a ser buscado</param>
+        /// <returns>Retorna um <b>Jogador</b> com as postagens</returns>
+        [HttpGet("Postagens/{id}")]
+        public IActionResult GetJogadorPorIdComPostagens(int id)
+        {
+            try
+            {
+                var jogadores = _jogadorRepository.GetJogadorPorIdComPostagens(id);
+                if (jogadores is null)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }
                 return Ok(jogadores);
             }
             catch (InvalidOperationException ex)
