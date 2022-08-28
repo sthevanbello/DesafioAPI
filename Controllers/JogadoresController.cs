@@ -120,7 +120,7 @@ namespace ForumGames.Controllers
 
         }
         /// <summary>
-        /// Lista todos os jogadores e os grupos dos quais ele participa
+        /// Lista todos os jogadores que participam de algum grupo
         /// </summary>
         /// <returns>Retorna os jogadores e seus respectivos grupos</returns>
         [HttpGet("Grupos")]
@@ -158,7 +158,7 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
-        /// Jogador e os grupos dos quais ele participa
+        /// Lista um jogador e os grupos dos quais ele participa
         /// </summary>
         /// <param name="id">Id do jogador a ser buscado</param>
         /// <returns>Retorna o jogador e os grupos dos quais ele participa</returns>

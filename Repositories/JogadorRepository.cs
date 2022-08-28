@@ -135,7 +135,7 @@ namespace ForumGames.Repositories
             return jogador;
         }
         /// <summary>
-        /// Jogador por id com os grupos dos quais cada jogador participa
+        /// Lista os jogadores que participam de grupos.
         /// </summary>
         /// <returns>Retorna o Jogador com os grupos dos quais participa</returns>
         /// <exception cref="System.NotImplementedException"></exception>
@@ -219,7 +219,7 @@ namespace ForumGames.Repositories
             return listaJogadores;
         }
         /// <summary>
-        /// Jogador por Id com os grupos dos quais ele participa
+        /// Lista um jogador e os grupos dos quais ele participa
         /// </summary>
         /// <param name="id">Id do jogador</param>
         /// <returns>Retorna um <b>Jogador</b></returns>
