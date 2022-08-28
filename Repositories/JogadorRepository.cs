@@ -18,10 +18,30 @@ namespace ForumGames.Repositories
         /// </summary>
         /// <param name="jogador">Jogador a ser inserido</param>
         /// <returns>Retorna um jogador após inserí-lo no banco</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
         public Jogador InsertJogador(Jogador jogador)
         {
-            throw new System.NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"INSERT INTO TB_Jogadores 
+                                        (Nome, Email, Usuario, Senha)
+                                    VALUES
+                                        (@Nome, @Email, @Usuario, @Senha)";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Nome", SqlDbType.NVarChar).Value = jogador.Nome;
+                    cmd.Parameters.Add("Email", SqlDbType.NVarChar).Value = jogador.Email;
+                    cmd.Parameters.Add("Senha", SqlDbType.NVarChar).Value = jogador.Senha;
+                    cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = jogador.Usuario;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return jogador;
         }
         public Jogador InsertJogadorComImagem(Jogador jogador)
         {
@@ -69,6 +89,11 @@ namespace ForumGames.Repositories
             }
             return listaJogadores;
         }
+        /// <summary>
+        /// Mostra um jogador a partir do Id fornecido
+        /// </summary>
+        /// <param name="id">Id do jogador</param>
+        /// <returns>Retorna um <b>Jogador</b></returns>
         public Jogador GetJogadorPorId(int id)
         {
             Jogador jogador = null;
@@ -260,7 +285,10 @@ namespace ForumGames.Repositories
             }
             return jogador;
         }
-
+        /// <summary>
+        /// Lista todos os jogadores que fizeram postagens
+        /// </summary>
+        /// <returns>Retorna uma <b>List</b> com todos os jogadores que fizeram postagens</returns>
         public ICollection<Jogador> GetJogadoresComPostagens()
         {
             IList<Jogador> listaJogadores = new List<Jogador>();
@@ -362,7 +390,12 @@ namespace ForumGames.Repositories
             }
             return listaJogadores;
         }
-
+        /// <summary>
+        /// Mostra um jogador e todas as suas postagens a partir do Id fornecido
+        /// <para>Se não houver postagens, mostra o jogador e o campo postagem vazio</para>
+        /// </summary>
+        /// <param name="id">Id do jogador</param>
+        /// <returns>Retorna um <b>Jogador</b> com as suas postagens feitas</returns>
         public Jogador GetJogadorPorIdComPostagens(int id)
         {
             Jogador jogador = GetJogadorPorId(id);
@@ -445,10 +478,50 @@ namespace ForumGames.Repositories
             }
             return jogador;
         }
+        /// <summary>
+        /// Atualiza os dados de um jogador existente no banco de dados
+        /// </summary>
+        /// <param name="id">Id do jogador</param>
+        /// <param name="jogador">Dados do jogador a ser atualizado</param>
+        /// <returns>Retorna o resultado booleano da operação</returns>
         public bool UpdateJogador(int id, Jogador jogador)
         {
-            throw new System.NotImplementedException();
+            if (GetJogadorPorId(id) is null)
+            {
+                return false;
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"UPDATE TB_Jogadores 
+                                    SET 
+                                        Nome = @Nome, 
+                                        Email = @Email,     
+                                        Usuario = @Usuario, 
+                                        Senha = @Senha
+                                WHERE Id = @Id";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Id", SqlDbType.NVarChar).Value = id;
+                    cmd.Parameters.Add("Nome", SqlDbType.NVarChar).Value = jogador.Nome;
+                    cmd.Parameters.Add("Email", SqlDbType.NVarChar).Value = jogador.Email;
+                    cmd.Parameters.Add("Senha", SqlDbType.NVarChar).Value = jogador.Senha;
+                    cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = jogador.Usuario;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
+        /// <summary>
+        /// Deletar um jogador existente no banco de dados se ele não houver feito qualquer postagem
+        /// </summary>
+        /// <param name="id">Id do jogador</param>
+        /// <returns>Retorna o resultado booleano da operação</returns>
         public bool DeleteJogador(int id)
         {
             throw new System.NotImplementedException();
