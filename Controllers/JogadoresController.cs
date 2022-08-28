@@ -1,4 +1,5 @@
 ﻿using ForumGames.Interfaces;
+using ForumGames.Models;
 using ForumGames.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,16 @@ namespace ForumGames.Controllers
         /*        
         public ICollection<Jogador> GetJogadores();
         public Jogador GetJogadorPorId(int id);
+
         public ICollection<Jogador> GetJogadoresComGrupos();
         public Jogador GetJogadorPorIdComGrupos(int id);
+
+        public ICollection<Jogador> GetJogadoresComPostagens();
         public Jogador GetJogadorPorIdComPostagens(int id);
+
         public Jogador InsertJogador(Jogador jogador);
         public Jogador InsertJogadorComImagem(Jogador jogador);
+
         public bool UpdateJogador(int id, Jogador jogador);
         public bool DeleteJogador(int id);
         */
@@ -244,6 +250,89 @@ namespace ForumGames.Controllers
                     return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
                 }
                 return Ok(jogadores);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Insere um jogador no banco de dados
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        // POST - Cadastrar
+        [HttpPost]
+        public IActionResult Insertjogador(Jogador jogador)
+        {
+            try
+            {
+                var jogadorInserido = _jogadorRepository.InsertJogador(jogador);
+                return Ok(jogadorInserido);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Insere um jogador no banco de dados
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        // POST - Cadastrar
+        [HttpPut("{id}")]
+        public IActionResult UpdateJogador(int id, Jogador jogador)
+        {
+            try
+            {
+                var jogadoratualizado = _jogadorRepository.UpdateJogador(id, jogador);
+                if (!jogadoratualizado)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(new {msg = "Jogador atualizado com sucesso.", jogador });
             }
             catch (InvalidOperationException ex)
             {
