@@ -60,7 +60,7 @@ namespace ForumGames.Controllers
         /// <param name="id">Id do grupo a ser buscado</param>
         /// <returns>Retorna um único grupo</returns>
         [HttpGet("{id}")]
-        public IActionResult GetJogadorPorId(int id)
+        public IActionResult GetGrupoPorId(int id)
         {
             try
             {
@@ -96,6 +96,44 @@ namespace ForumGames.Controllers
                 });
             }
 
+        }
+
+        /// <summary>
+        /// Exibir uma lista de todos os grupos e os jogadores desses grupos
+        /// </summary>
+        /// <returns>Retorna uma lista de todos os grupos e os jogadores desses grupos</returns>
+        [HttpGet("Jogadores")]
+        public IActionResult GetAllGruposComJogadores()
+        {
+            try
+            {
+                var grupoJogadores = _grupoRepository.GetAllGruposComJogadores();
+                return Ok(grupoJogadores);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
         }
     }
 }
