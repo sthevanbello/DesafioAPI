@@ -15,9 +15,11 @@ namespace ForumGames.Models
         public DateTime DataHora { get; set; }
         [Required(ErrorMessage = "Informe o Id do grupo da postagem")]
         //public int GrupoId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Grupo Grupo { get; set; }
         [Required(ErrorMessage = "Informe o Id da categoria da postagem")]
         //public int CategoriaPostagemId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] // Não exibe o campo no Json se o valor for null
         public CategoriaPostagem CategoriaPostagem { get; set; }
         [Required(ErrorMessage = "Informe o Id do jogador da postagem")]
         //public int JogadorId { get; set; }
