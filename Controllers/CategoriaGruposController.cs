@@ -96,6 +96,43 @@ namespace ForumGames.Controllers
 
         }
         /// <summary>
+        /// Exibir todas as categorias e todos os grupos cadastrados
+        /// </summary>
+        /// <returns>Retorna todas as categorias e todos os grupos cadastrados</returns>
+        [HttpGet("Grupos")]
+        public IActionResult GetAllCategoriaGrupoComGrupos()
+        {
+            try
+            {
+                var categoriaGrupo = _categoriaGrupoRepository.GetAllCategoriaGrupoComGrupos();
+                return Ok(categoriaGrupo);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+        /// <summary>
         /// Exibir uma CategoriaGrupo e seus respectivos grupos
         /// </summary>
         /// <param name="id">Id da Categoria de Grupo</param>
@@ -196,9 +233,9 @@ namespace ForumGames.Controllers
                 var categoriaGrupoAtualizada = _categoriaGrupoRepository.UpdateCategoriaGrupo(id, categoriaGrupo);
                 if (!categoriaGrupoAtualizada)
                 {
-                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                    return NotFound(new { msg = "Categoria de Grupo não encontrada. Verifique se o Id está correto" });
                 }
-                return Ok(new { msg = "Jogador atualizado com sucesso.", categoriaGrupo });
+                return Ok(new { msg = "Categoria de Grupo atualizada com sucesso.", categoriaGrupo });
             }
             catch (InvalidOperationException ex)
             {
