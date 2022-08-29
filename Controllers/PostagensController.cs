@@ -97,5 +97,43 @@ namespace ForumGames.Controllers
             }
 
         }
+
+        /// <summary>
+        /// Exibe uma lista com as postagens de cada jogador
+        /// </summary>
+        /// <returns>Retorna uma <b>List</b> de Postagem</returns>
+        [HttpGet("Jogadores")]
+        public IActionResult GetPostagensComJogador()
+        {
+            try
+            {
+                var listaPostagens = _postagemRepository.GetPostagensComJogador();
+                return Ok(listaPostagens);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
     }
 }

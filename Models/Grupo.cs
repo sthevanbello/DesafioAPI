@@ -11,8 +11,8 @@ namespace ForumGames.Models
         //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [Required(ErrorMessage = "Informe a descrição do grupo")]
         public string Descricao { get; set; }
-        //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public int CategoriaId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public int? CategoriaId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public CategoriaGrupo Categoria { get; set; } // Utilizado para retornar o nome da categoria no Get do Controller
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

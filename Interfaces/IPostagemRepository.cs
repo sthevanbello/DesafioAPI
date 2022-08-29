@@ -7,7 +7,7 @@ namespace ForumGames.Interfaces
     {
         public ICollection<Postagem> GetPostagens();
         public Postagem GetPostagemPorId(int id);
-        public ICollection<Postagem> GetPostagemsComJogadores();
+        public ICollection<Postagem> GetPostagensComJogador();
         public Postagem InsertPostagem(Postagem postagem);
         public bool UpdatePostagem(int id, Postagem postagem);
         public bool DeletePostagem(int id);
