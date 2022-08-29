@@ -96,7 +96,6 @@ namespace ForumGames.Controllers
                     erro = ex.Message
                 });
             }
-
         }
         /// <summary>
         /// Exibir todas as categorias e todos as postagens referentes à categoria
