@@ -135,5 +135,48 @@ namespace ForumGames.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Exibir um grupo e os jogadores que o integram
+        /// </summary>
+        /// <param name="id">Id do grupo a ser buscado</param>
+        /// <returns>Retorna um grupo e os jogadores que o integram</returns>
+        [HttpGet("Jogadores/{id}")]
+        public IActionResult GetGrupoPorIdComJogadores(int id)
+        {
+            try
+            {
+                var grupo = _grupoRepository.GetGrupoPorIdComJogadores(id);
+                if (grupo is null)
+                {
+                    return NotFound(new { msg = "Grupo não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(grupo);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
     }
 }

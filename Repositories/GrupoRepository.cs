@@ -105,7 +105,7 @@ namespace ForumGames.Repositories
                                 INNER JOIN	RL_Jogadores_Grupos AS RL ON J.Id = RL.JogadorId
                                 INNER JOIN TB_Grupos AS G ON G.Id = RL.GrupoId
                                 INNER JOIN TB_Categorias_Grupos AS CG ON G.CategoriaId = CG.Id
-                                ORDER BY J.Id";
+                                ORDER BY G.Id";
 
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
@@ -165,9 +165,71 @@ namespace ForumGames.Repositories
             }
             return listaGrupos;
         }
+        /// <summary>
+        /// Exibir um grupo e os jogadores que o integram
+        /// </summary>
+        /// <param name="id">Id do grupo a ser buscado</param>
+        /// <returns>Retorna um grupo e os jogadores que o integram</returns>
         public Grupo GetGrupoPorIdComJogadores(int id)
         {
-            throw new System.NotImplementedException();
+            Grupo grupo = GetGrupoPorId(id);
+            if (grupo is null)
+            {
+                return null;
+            }
+            grupo.Jogadores = new List<Jogador>();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"SELECT 
+	                                J.Id AS 'Id_Jogador',
+	                                J.Usuario AS 'Usuario_Do_Jogador',
+	                                J.Senha AS 'Senha_Usuario',
+	                                J.Nome AS 'Nome_Do_Jogador',
+	                                J.Email AS 'Email_Do_Jogador',
+	                                RL.GrupoId AS 'Id_Grupo',
+	                                G.Descricao AS 'Descricao_Grupo',
+	                                G.CategoriaId AS 'Id_Categoria_Grupo',
+	                                CG.Categoria AS 'Nome_Categoria_Grupo'
+                                FROM TB_Jogadores AS J
+                                INNER JOIN	RL_Jogadores_Grupos AS RL ON J.Id = RL.JogadorId
+                                INNER JOIN TB_Grupos AS G ON G.Id = RL.GrupoId
+                                INNER JOIN TB_Categorias_Grupos AS CG ON G.CategoriaId = CG.Id
+                                WHERE G.Id = @Id";
+
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Ler todos os itens da consulta com while
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = grupo.Id;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        while (result != null && result.HasRows && result.Read())
+                        {
+                            var jogador = new Jogador();
+                            if (!string.IsNullOrEmpty(result["Id_Jogador"].ToString()))
+                            {
+
+                                jogador = new Jogador
+                                {
+
+                                    Id = (int)result["Id_Jogador"],
+                                    Nome = result["Nome_Do_Jogador"].ToString(),
+                                    Email = result["Email_Do_Jogador"].ToString(),
+                                    Usuario = result["Usuario_Do_Jogador"].ToString(),
+                                    Senha = result["Senha_Usuario"].ToString(),
+                                    Postagens = null,
+                                    Grupos = null
+                                };
+                                grupo.Jogadores.Add(jogador);
+                            }
+                        }
+                    }
+
+                }
+            }
+            return grupo;
         }
         public ICollection<Grupo> GetAllGruposComPostagens()
         {
