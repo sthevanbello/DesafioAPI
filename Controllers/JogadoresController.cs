@@ -322,6 +322,7 @@ namespace ForumGames.Controllers
         /// Atualizar um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
+        /// <param name="id">Id do jogador a ser atualizado</param>
         /// <returns>Retorna um jogador após atualizá-lo no banco</returns>
         // POST - Cadastrar
         [HttpPut("{id}")]

@@ -110,7 +110,6 @@ namespace ForumGames.Repositories
                                 FROM TB_Jogadores AS J WHERE Id = @id";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
-                    // Ler todos os itens da consulta com foreach e while
                     cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
