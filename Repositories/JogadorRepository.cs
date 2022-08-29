@@ -378,9 +378,9 @@ namespace ForumGames.Repositories
 
                                 listaJogadores.Add(jogador);
                             }
-                            else if ((postagem?.Id ?? 0) > 0) // grupo?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
+                            else if ((postagem?.Id ?? 0) > 0) // postagem?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
                             {
-                                // Busca o jogador e adiciona o grupo na lista de grupos dos quais o jogador participa
+                                // Busca o jogador e adiciona a postagem na lista de postagens do jogador.
                                 listaJogadores.FirstOrDefault(x => x.Id == (int)result["Id_Jogador"]).Postagens.Add(postagem);
                             }
                         }
