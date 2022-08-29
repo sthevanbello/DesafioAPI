@@ -38,7 +38,7 @@ namespace ForumGames.Controllers
             _jogadorRepository = jogadorRepository;
         }
         /// <summary>
-        /// Lista todos os jogadores cadastrados
+        /// Exibir uma lista de todos os jogadores cadastrados
         /// </summary>
         /// <returns>Retorna todos os jogadores</returns>
         // Get
@@ -77,7 +77,7 @@ namespace ForumGames.Controllers
             
         }
         /// <summary>
-        /// Mostra um jogador passando o seu Id
+        /// Exibir um jogador passando o seu Id
         /// </summary>
         /// <param name="id">Id do jogador a ser buscado</param>
         /// <returns>Retorna um único jogador</returns>
@@ -120,7 +120,7 @@ namespace ForumGames.Controllers
 
         }
         /// <summary>
-        /// Lista todos os jogadores que participam de algum grupo
+        /// Exibir uma lista de todos os jogadores que participam de algum grupo
         /// </summary>
         /// <returns>Retorna os jogadores e seus respectivos grupos</returns>
         [HttpGet("Grupos")]
@@ -158,7 +158,7 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
-        /// Lista um jogador e os grupos dos quais ele participa
+        /// Exibir um jogador e os grupos dos quais ele participa
         /// </summary>
         /// <param name="id">Id do jogador a ser buscado</param>
         /// <returns>Retorna o jogador e os grupos dos quais ele participa</returns>
@@ -200,7 +200,7 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Lista todos os jogadores e as suas postagens feitas
+        /// Exibir uma lista de todos os jogadores e as suas postagens feitas
         /// </summary>
         /// <returns>Retorna os jogadores e suas respectivas postagens</returns>
         [HttpGet("Postagens")]
@@ -237,7 +237,7 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Jogador com as postagens feitas
+        /// Exibir Jogador com as postagens feitas
         /// </summary>
         /// <param name="id">Id do jogador a ser buscado</param>
         /// <returns>Retorna um <b>Jogador</b> com as postagens</returns>
@@ -279,7 +279,7 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Insere um jogador no banco de dados
+        /// Inserir um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser inserido</param>
         /// <returns>Retorna um jogador após inserí-lo no banco</returns>
@@ -319,7 +319,7 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
-        /// Atualiza um jogador no banco de dados
+        /// Atualizar um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <returns>Retorna um jogador após atualizá-lo no banco</returns>

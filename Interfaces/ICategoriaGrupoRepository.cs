@@ -7,6 +7,7 @@ namespace ForumGames.Interfaces
     {
         public ICollection<CategoriaGrupo> GetAllCategoriaGrupo();
         public CategoriaGrupo GetCategoriaGrupoPorId(int id);
+        public CategoriaGrupo GetCategoriaGrupoPorIdComGrupos(int id);
         public CategoriaGrupo InsertCategoriaGrupo(CategoriaGrupo categoriaGrupo);
         public bool UpdateCategoriaGrupo(int id, CategoriaGrupo categoriaGrupo);
         public bool DeleteCategoriaGrupo(int id);
