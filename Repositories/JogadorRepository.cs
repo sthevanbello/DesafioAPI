@@ -525,6 +525,7 @@ namespace ForumGames.Repositories
         public bool DeleteJogador(int id)
         {
             var jogador = GetJogadorPorIdComPostagens(id);
+            var jogadorGrupo = GetJogadorPorIdComGrupos(id);
             if (jogador is null)
             {
                 return false;
@@ -532,6 +533,10 @@ namespace ForumGames.Repositories
             if (jogador.Postagens.Count > 0)
             {
                 throw new CannotDeleteException("O jogador não pode ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
+            }
+            if (jogadorGrupo.Grupos.Count > 0)
+            {
+                throw new CannotDeleteException("O jogador não pode ser deletado, pois participa de algum grupo. Apague o relacionamento com esse(s) grupo(s) primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
