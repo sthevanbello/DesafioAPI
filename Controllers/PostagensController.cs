@@ -54,5 +54,48 @@ namespace ForumGames.Controllers
                 });
             }
         }
+        /// <summary>
+        /// Exibir uma postagem a partir do seu Id
+        /// </summary>
+        /// <param name="id">Id da Postagem</param>
+        /// <returns>Retorna uma <b>Postagem</b></returns>
+        [HttpGet("{id}")]
+        public IActionResult GetPostagemPorId(int id)
+        {
+            try
+            {
+                var postagem = _postagemRepository.GetPostagemPorId(id);
+                if (postagem is null)
+                {
+                    return NotFound(new { msg = "Postagem não encontrada. Verifique se o Id está correto" });
+                }
+                return Ok(postagem);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+
+        }
     }
 }

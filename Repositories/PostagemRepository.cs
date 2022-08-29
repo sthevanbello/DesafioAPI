@@ -31,6 +31,10 @@ namespace ForumGames.Repositories
         public bool UpdatePostagem(int id, Postagem postagem);
         public bool DeletePostagem(int id);*/
 
+        /// <summary>
+        /// Exibir todas as postagens
+        /// </summary>
+        /// <returns>Retorna uma <b>List</b> de <b>Postagem</b></returns>
         public ICollection<Postagem> GetPostagens()
         {
             var listaPostagens = new List<Postagem>();
@@ -73,10 +77,53 @@ namespace ForumGames.Repositories
             }
             return listaPostagens;
         }
-
+        /// <summary>
+        /// Exibir uma postagem a partir do seu Id
+        /// </summary>
+        /// <param name="id">Id da Postagem</param>
+        /// <returns>Retorna uma <b>Postagem</b></returns>
         public Postagem GetPostagemPorId(int id)
         {
-            throw new System.NotImplementedException();
+            Postagem postagem = null;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string script = @"SELECT 
+	                                P.Id AS 'Id_Postagem',
+	                                P.Titulo AS 'Titulo_Postagem',
+	                                P.Texto AS 'Texto_Postagem',
+	                                P.Imagem AS 'Imagem_Postagem',
+	                                P.DataHora AS 'DataHora_Postagem',
+	                                P.GrupoId AS 'Id_Grupo_Postagem',
+	                                P.CategoriaPostagemId AS 'Id_Categoria_Postagem',
+	                                P.JogadorId AS 'Is_Jogador_Postagem'
+                                FROM TB_Postagens AS P
+                                WHERE P.Id = @Id";
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        while (result != null && result.HasRows && result.Read())
+                        {
+                            postagem = new Postagem
+                            {
+                                Id = (int)result["Id_Postagem"],
+                                Titulo = (string)result["Titulo_Postagem"],
+                                Texto = (string)result["Texto_Postagem"],
+                                Imagem = (string)result["Imagem_Postagem"],
+                                DataHora = Convert.ToDateTime(result["DataHora_Postagem"]),
+                                Grupo = null,
+                                Jogador = null,
+                                CategoriaPostagem = null
+                            };
+                        }
+                    }
+
+                }
+            }
+            return postagem;
         }
 
         public ICollection<Postagem> GetPostagemsComJogadores()
