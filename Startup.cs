@@ -55,7 +55,7 @@ namespace ForumGames
             services.AddScoped<ICategoriaGrupoRepository, CategoriaGrupoRepository>();
             services.AddScoped<ICategoriaPostagemRepository, CategoriaPostagemRepository>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
-            //services.AddScoped<IPostagemRepository>();
+            services.AddScoped<IPostagemRepository, PostagemRepository>();
             //services.AddScoped<IJogadorGrupoRepository>();
 
         }

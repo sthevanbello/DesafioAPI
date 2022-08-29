@@ -5,7 +5,7 @@ namespace ForumGames.Interfaces
 {
     public interface IPostagemRepository
     {
-        public ICollection<Postagem> GetPostagem();
+        public ICollection<Postagem> GetPostagens();
         public Postagem GetPostagemPorId(int id);
         public ICollection<Postagem> GetPostagemsComJogadores();
         public Postagem InsertPostagem(Postagem postagem);
