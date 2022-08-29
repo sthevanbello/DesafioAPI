@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System;
 using ForumGames.Utils.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ForumGames.Repositories
 {
@@ -59,8 +60,7 @@ namespace ForumGames.Repositories
                         }
                     }
                 }
-                // Execução no banco
-                
+
             }
             return grupo;
         }
@@ -196,7 +196,7 @@ namespace ForumGames.Repositories
                                 {
                                     Id = (int)result["Id_Grupo"],
                                     Descricao = result["Descricao_Grupo"].ToString(),
-                                    
+
                                     Categoria = new CategoriaGrupo
                                     {
                                         Id = (int)result["Id_Categoria_Grupo"],
@@ -488,10 +488,59 @@ namespace ForumGames.Repositories
             }
             return grupo;
         }
-        /**/
+        /// <summary>
+        /// Atualiza um Grupo existente no banco de dados
+        /// </summary>
+        /// <param name="id">Id do Grupo a ser atualizado</param>
+        /// <param name="grupo">Dados atualizados do Grupo</param>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
         public bool UpdateGrupo(int id, Grupo grupo)
         {
-            throw new System.NotImplementedException();
+            if (GetGrupoPorId(id) is null)
+            {
+                return false;
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                // Execução no banco
+                string scriptCategoria = @"SELECT 
+                                            CG.Id AS 'Id_Categoria',
+                                            CG.Categoria AS 'Categoria_Nome'
+                                        FROM TB_Categorias_Grupos AS CG
+                                        WHERE CG.Id = @Id";
+                using (SqlCommand cmd = new SqlCommand(scriptCategoria, connection))
+                {
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = grupo.CategoriaId;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        if (!result.HasRows)
+                        {
+                            throw new ThereIsntCategoryException("Não há categoria com o id informado");
+                        }
+                    }
+                }
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string scriptUpdate = @"UPDATE TB_Grupos 
+					                    SET 
+						                    Descricao = @Descricao,
+						                    CategoriaId = @CategoriaId
+				                        WHERE Id = @Id";
+                using (SqlCommand cmdUpdate = new SqlCommand(scriptUpdate, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmdUpdate.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmdUpdate.Parameters.Add("Descricao", SqlDbType.NVarChar).Value = grupo.Descricao;
+                    cmdUpdate.Parameters.Add("CategoriaId", SqlDbType.Int).Value = grupo.CategoriaId;
+                    cmdUpdate.CommandType = CommandType.Text;
+                    cmdUpdate.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
         /**/
         public bool DeleteGrupo(int id)

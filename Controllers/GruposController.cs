@@ -306,5 +306,53 @@ namespace ForumGames.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// Atualizar um grupo existente no banco de dados com uma categoria existente
+        /// </summary>
+        /// <param name="id">Id do grupo a ser atualizado</param>
+        /// <param name="grupo">Dados atualizados do grupo</param>
+        /// <returns>Retorna o grupo que foi inserido</returns>
+        [HttpPut]
+        public IActionResult UpdateGrupo(int id, Grupo grupo)
+        {
+            try
+            {
+                _grupoRepository.UpdateGrupo(id, grupo);
+                return Ok(grupo);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (ThereIsntCategoryException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha ao inserir grupo",
+                    erro = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
     }
 }

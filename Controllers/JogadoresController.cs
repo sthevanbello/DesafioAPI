@@ -323,7 +323,7 @@ namespace ForumGames.Controllers
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <param name="id">Id do jogador a ser atualizado</param>
-        /// <returns>Retorna um jogador após atualizá-lo no banco</returns>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
         // POST - Cadastrar
         [HttpPut("{id}")]
         public IActionResult UpdateJogador(int id, Jogador jogador)
