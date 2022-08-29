@@ -312,14 +312,18 @@ namespace ForumGames.Controllers
         /// </summary>
         /// <param name="id">Id do grupo a ser atualizado</param>
         /// <param name="grupo">Dados atualizados do grupo</param>
-        /// <returns>Retorna o grupo que foi inserido</returns>
+        /// <returns>Retorna o grupo que foi atualizado</returns>
         [HttpPut]
         public IActionResult UpdateGrupo(int id, Grupo grupo)
         {
             try
             {
-                _grupoRepository.UpdateGrupo(id, grupo);
-                return Ok(grupo);
+                var grupoAtualizado = _grupoRepository.UpdateGrupo(id, grupo);
+                if (!grupoAtualizado)
+                {
+                    return NotFound(new { msg = "Grupo não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(new { msg = "Grupo atualizado com sucesso.", grupo });
             }
             catch (InvalidOperationException ex)
             {
@@ -341,8 +345,59 @@ namespace ForumGames.Controllers
             {
                 return StatusCode(500, new
                 {
-                    msg = "Falha ao inserir grupo",
+                    msg = "Falha ao atualizar grupo",
                     erro = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Excluir um grupo no banco de dados
+        /// </summary>
+        /// <param name="id">Id do grupo a ser excluído</param>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
+        [HttpDelete("{id}")]
+        public IActionResult DeleteGrupo(int id)
+        {
+            try
+            {
+                var grupoDeletado = _grupoRepository.DeleteGrupo(id);
+                if (!grupoDeletado)
+                {
+                    return NotFound(new { msg = "Grupo não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(new { msg = "Grupo excluído com sucesso." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (CannotDeleteException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha ao excluir o grupo",
+                    erro = ex.Message,
                 });
             }
             catch (Exception ex)

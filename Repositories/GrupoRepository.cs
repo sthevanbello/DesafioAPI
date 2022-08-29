@@ -7,6 +7,7 @@ using System.Linq;
 using System;
 using ForumGames.Utils.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
 
 namespace ForumGames.Repositories
 {
@@ -113,8 +114,7 @@ namespace ForumGames.Repositories
                 connection.Open();
                 string script = @"SELECT 
 	                                G.Id AS 'Id_Grupo',
-	                                G.Descricao AS 'Descricao_Grupo',
-	                                G.CategoriaId AS 'Categoria_Grupo'
+	                                G.Descricao AS 'Descricao_Grupo'
                                 FROM TB_Grupos AS G
                                 WHERE G.Id = @Id";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
@@ -130,7 +130,8 @@ namespace ForumGames.Repositories
                                 Id = (int)result["Id_Grupo"],
                                 Descricao = result["Descricao_Grupo"].ToString(),
                                 Categoria = null,
-                                Jogadores = null
+                                Jogadores = null,
+                                Postagens = null
                             };
                         }
                     }
@@ -366,7 +367,6 @@ namespace ForumGames.Repositories
 
                             if (!listaGrupos.Any(x => x.Id == (int)result["Id_Grupo"]))
                             {
-
                                 var grupo = new Grupo
                                 {
                                     Id = (int)result["Id_Grupo"],
@@ -493,7 +493,7 @@ namespace ForumGames.Repositories
         /// </summary>
         /// <param name="id">Id do Grupo a ser atualizado</param>
         /// <param name="grupo">Dados atualizados do Grupo</param>
-        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
+        /// <returns>Retorna um booleano sobre a operação de atualização a ser realizada</returns>
         public bool UpdateGrupo(int id, Grupo grupo)
         {
             if (GetGrupoPorId(id) is null)
@@ -542,10 +542,66 @@ namespace ForumGames.Repositories
             }
             return true;
         }
-        /**/
+        /// <summary>
+        /// Deletar um grupo ao receber o id
+        /// </summary>
+        /// <param name="id">Id do grupo que será deletado</param>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
         public bool DeleteGrupo(int id)
         {
-            throw new System.NotImplementedException();
+            var grupo = GetGrupoPorId(id);
+            if (grupo is null)
+            {
+                return false;
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                // Execução no banco
+                string scriptSelect = @"SELECT 
+	                                G.Id AS 'Id_Grupo',
+	                                G.Descricao AS 'Descricao_Grupo',
+	                                P.Id AS 'Id_Postagem',
+                                    J.Id AS 'Id_Jogador'
+                                FROM TB_Grupos AS G
+                                INNER JOIN	RL_Jogadores_Grupos AS RL ON G.Id = RL.GrupoId
+                                LEFT JOIN TB_Jogadores AS J ON J.Id = RL.JogadorId
+                                LEFT JOIN TB_Postagens AS P ON P.JogadorId = J.Id AND P.GrupoId = G.Id
+                                WHERE G.Id = @Id";
+                using (SqlCommand cmd = new SqlCommand(scriptSelect, connection))
+                {
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        while (result != null && result.HasRows && result.Read())
+                        {
+                            if (!string.IsNullOrEmpty(result["Id_Postagem"].ToString()))
+                            {
+                                throw new CannotDeleteException("Há alguma postagem vinculada ao grupo e por isso não pôde ser excluído");
+                            }
+                            else if (!string.IsNullOrEmpty(result["Id_Jogador"].ToString()))
+                            {
+                                throw new CannotDeleteException("Há algum jogador vinculado ao grupo e por isso não pôde ser excluído");
+                            }
+                        }
+                    }
+                }
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string scriptUpdate = @"DELETE FROM TB_Grupos WHERE Id = @id";
+
+                using (SqlCommand cmdUpdate = new SqlCommand(scriptUpdate, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmdUpdate.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmdUpdate.CommandType = CommandType.Text;
+                    cmdUpdate.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
     }
 }
