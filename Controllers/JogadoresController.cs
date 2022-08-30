@@ -15,23 +15,7 @@ namespace ForumGames.Controllers
     public class JogadoresController : ControllerBase
     {
         private readonly IJogadorRepository _jogadorRepository;
-        //public IJogadorRepository JogadorRepository { get; set; } = new JogadorRepository();
-        /*        
-        public ICollection<Jogador> GetJogadores();
-        public Jogador GetJogadorPorId(int id);
 
-        public ICollection<Jogador> GetJogadoresComGrupos();
-        public Jogador GetJogadorPorIdComGrupos(int id);
-
-        public ICollection<Jogador> GetJogadoresComPostagens();
-        public Jogador GetJogadorPorIdComPostagens(int id);
-
-        public Jogador InsertJogador(Jogador jogador);
-        public Jogador InsertJogadorComImagem(Jogador jogador);
-
-        public bool UpdateJogador(int id, Jogador jogador);
-        public bool DeleteJogador(int id);
-        */
 
         public JogadoresController(IJogadorRepository jogadorRepository)
         {
@@ -41,7 +25,7 @@ namespace ForumGames.Controllers
         /// Exibir uma lista de todos os jogadores cadastrados
         /// </summary>
         /// <returns>Retorna todos os jogadores</returns>
-        // Get
+        // Get - Consultar
         [HttpGet]
         public IActionResult GetJogadores()
         {
@@ -74,7 +58,7 @@ namespace ForumGames.Controllers
                     erro = ex.Message
                 });
             }
-            
+
         }
         /// <summary>
         /// Exibir um jogador passando o seu Id
@@ -171,7 +155,7 @@ namespace ForumGames.Controllers
                 if (jogadores is null)
                 {
                     return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
-                }               
+                }
                 return Ok(jogadores);
             }
             catch (InvalidOperationException ex)
@@ -324,8 +308,8 @@ namespace ForumGames.Controllers
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <param name="id">Id do jogador a ser atualizado</param>
         /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
-        // POST - Cadastrar
-        [HttpPut("{id}")]
+        // PUT - Alterar
+        [HttpPut]
         public IActionResult UpdateJogador(int id, Jogador jogador)
         {
             try
@@ -335,7 +319,7 @@ namespace ForumGames.Controllers
                 {
                     return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
                 }
-                return Ok(new {msg = "Jogador atualizado com sucesso.", jogador });
+                return Ok(new { msg = "Jogador atualizado com sucesso.", jogador });
             }
             catch (InvalidOperationException ex)
             {
@@ -367,7 +351,7 @@ namespace ForumGames.Controllers
         /// Excluir um jogador no banco de dados
         /// </summary>
         /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
-        // POST - Cadastrar
+        // DELETE - Deletar
         [HttpDelete("{id}")]
         public IActionResult DeleteJogador(int id)
         {
@@ -378,7 +362,7 @@ namespace ForumGames.Controllers
                 {
                     return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
                 }
-                return Ok(new { msg = "Jogador excluído com sucesso."});
+                return Ok(new { msg = "Jogador excluído com sucesso." });
             }
             catch (InvalidOperationException ex)
             {
@@ -396,14 +380,14 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
-            catch (CannotDeleteException ex)
+            catch (NaoPodeDeletarException ex)
             {
                 return StatusCode(500, new
                 {
                     msg = "Falha ao excluir o jogador",
                     erro = ex.Message,
                 });
-            }   
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new

@@ -49,7 +49,7 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
-            catch (ThereIsntCategoryException ex)
+            catch (NaoHaCategoriaException ex)
             {
                 return StatusCode(500, new
                 {
@@ -341,7 +341,7 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
-            catch (ThereIsntCategoryException ex)
+            catch (NaoHaCategoriaException ex)
             {
                 return StatusCode(500, new
                 {
@@ -392,7 +392,7 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
-            catch (CannotDeleteException ex)
+            catch (NaoPodeDeletarException ex)
             {
                 return StatusCode(500, new
                 {

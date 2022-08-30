@@ -298,7 +298,7 @@ namespace ForumGames.Controllers
                     erro = ex.Message,
                 });
             }
-            catch (CannotDeleteException ex)
+            catch (NaoPodeDeletarException ex)
             {
                 return StatusCode(500, new
                 {
