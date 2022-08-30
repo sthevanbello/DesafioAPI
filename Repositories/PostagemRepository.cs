@@ -64,7 +64,7 @@ namespace ForumGames.Repositories
                                 Texto = (string)result["Texto_Postagem"],
                                 Imagem = (string)result["Imagem_Postagem"],
                                 DataHora = Convert.ToDateTime(result["DataHora_Postagem"]),
-                                Grupo = null,
+                                Grupo = null, 
                                 Jogador = null,
                                 CategoriaPostagem = null
                             });
@@ -344,7 +344,7 @@ namespace ForumGames.Repositories
                     cmdinsert.Parameters.Add("Titulo", SqlDbType.NVarChar).Value = postagem.Titulo;
                     cmdinsert.Parameters.Add("Texto", SqlDbType.NVarChar).Value = postagem.Texto;
                     cmdinsert.Parameters.Add("Imagem", SqlDbType.NVarChar).Value = postagem.Imagem;
-                    cmdinsert.Parameters.Add("DataHora", SqlDbType.DateTime).Value = postagem.DataHora;
+                    cmdinsert.Parameters.Add("DataHora", SqlDbType.DateTime).Value = DateTime.Now;
                     cmdinsert.Parameters.Add("GrupoId", SqlDbType.Int).Value = postagem.GrupoId;
                     cmdinsert.Parameters.Add("CategoriaPostagemId", SqlDbType.Int).Value = postagem.CategoriaPostagemId;
                     cmdinsert.Parameters.Add("JogadorId", SqlDbType.Int).Value = postagem.JogadorId;
@@ -354,15 +354,75 @@ namespace ForumGames.Repositories
             }
             return postagem;
         }
-        /* Pendente */
+        /// <summary>
+        /// Atualizar a postagem de acordo com as informações fornecidas. Somente podendo alterar Título, Texto ou imagem
+        /// </summary>
+        /// <param name="id">Id da postagem</param>
+        /// <param name="postagem">Dados atualizados de Título, Texto ou imagem</param>
+        /// <returns>Retorna um <b>bool</b> sobre a alteração da postagem</returns>
         public bool UpdatePostagem(int id, Postagem postagem)
         {
-            throw new System.NotImplementedException();
+            if (GetPostagemPorId(id) is null)
+            {
+                return false;
+            }
+
+            // Só vai ser permitido alterar o título, o texto ou a imagem
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"UPDATE TB_Postagens 
+                                SET 
+                                    Titulo = @Titulo, 
+                                    Texto = @Texto, 
+                                    Imagem = @Imagem
+                                WHERE Id = @Id";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Id", SqlDbType.NVarChar).Value = id;
+                    cmd.Parameters.Add("Titulo", SqlDbType.NVarChar).Value = postagem.Titulo;
+                    cmd.Parameters.Add("Texto", SqlDbType.NVarChar).Value = postagem.Texto;
+                    cmd.Parameters.Add("Imagem", SqlDbType.NVarChar).Value = postagem.Imagem;
+                    //cmd.Parameters.Add("Usuario", SqlDbType.DateTime).Value = postagem.DataHora;
+                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.GrupoId;
+                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.CategoriaPostagemId;
+                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.JogadorId;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
-        /* Pendente */
+        /// <summary>
+        /// Deletar a postagem de acordo com o Id fornecido
+        /// </summary>
+        /// <param name="id">Id da postagem</param>
+        /// <returns>Retorna um <b>bool</b> sobre a exclusão da postagem</returns>
         public bool DeletePostagem(int id)
         {
-            throw new System.NotImplementedException();
+            if (GetPostagemPorId(id) is null)
+            {
+                return false;
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"DELETE FROM TB_Postagens WHERE Id = @Id";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Id", SqlDbType.NVarChar).Value = id;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
         }
     }
 }

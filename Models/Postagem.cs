@@ -13,15 +13,15 @@ namespace ForumGames.Models
         public string Texto { get; set; }
         public string Imagem { get; set; }
         public DateTime DataHora { get; set; }
-        //[Required(ErrorMessage = "Informe o Id do grupo da postagem")]
+        [Required(ErrorMessage = "Informe o Id do grupo da postagem")]
         public int GrupoId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Grupo Grupo { get; set; }
-        //[Required(ErrorMessage = "Informe o Id da categoria da postagem")]
+        [Required(ErrorMessage = "Informe o Id da categoria da postagem")]
         public int CategoriaPostagemId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] // Não exibe o campo no Json se o valor for null
         public CategoriaPostagem CategoriaPostagem { get; set; }
-        //[Required(ErrorMessage = "Informe o Id do jogador da postagem")]
+        [Required(ErrorMessage = "Informe o Id do jogador da postagem")]
         public int JogadorId { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public Jogador Jogador { get; set; }

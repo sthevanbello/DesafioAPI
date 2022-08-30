@@ -20,7 +20,7 @@ namespace ForumGames.Repositories
         /// <returns>Retorna a categoria de grupo nova</returns>
         public CategoriaGrupo InsertCategoriaGrupo(CategoriaGrupo categoriaGrupo)
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new(connectionString))
             {
                 connection.Open();
 
@@ -29,7 +29,7 @@ namespace ForumGames.Repositories
 
 
                 // Execução no banco
-                using (SqlCommand cmd = new SqlCommand(script, connection))
+                using (SqlCommand cmd = new(script, connection))
                 {
                     // Declarar as variáveis por parâmetros
                     cmd.Parameters.Add("NomeCategoria", SqlDbType.NVarChar).Value = categoriaGrupo.NomeCategoriaGrupo;
