@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.SqlClient;
 using System;
+using ForumGames.Models;
+using ForumGames.Utils.Exceptions;
 
 namespace ForumGames.Controllers
 {
@@ -124,6 +126,71 @@ namespace ForumGames.Controllers
                 {
                     msg = "Falha na sintaxe do código SQL",
                     erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /* Pendente */
+        /// <summary>
+        /// Inserir uma postagem com Categoria, Jogador e Grupo, incluindo o relacionamento da RL_Jogadores_Grupos 
+        /// </summary>
+        /// <param name="postagem"></param>
+        /// <returns></returns>
+        // POST - Cadastrar
+        [HttpPost]
+        public IActionResult Insertjogador(Postagem postagem)
+        {
+            try
+            {
+                var postagemInserida = _postagemRepository.InsertPostagem(postagem);
+                return Ok(postagemInserida);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (NaoHaJogadorException ex)
+            {
+                return StatusCode(404, new
+                {
+                    msg = "Falha ao inserir a postagem",
+                    erro = ex.Message
+                });
+            }
+            catch (NaoHaCategoriaException ex)
+            {
+                return StatusCode(404, new
+                {
+                    msg = "Falha ao inserir a postagem",
+                    erro = ex.Message
+                });
+            }
+            catch (NaoHaGrupoException ex)
+            {
+                return StatusCode(404, new
+                {
+                    msg = "Falha ao inserir a postagem",
+                    erro = ex.Message
                 });
             }
             catch (Exception ex)

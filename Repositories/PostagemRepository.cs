@@ -5,13 +5,15 @@ using System.Data.SqlClient;
 using System.Data;
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
+using ForumGames.Utils.Exceptions;
 
 namespace ForumGames.Repositories
 {
     public class PostagemRepository : IPostagemRepository
     {
         private readonly string connectionString = @"data source=NOTE_STHEVAN\SQLEXPRESS; User Id=sa; Password=Admin1234; Initial Catalog = Forum_Games";
-        
+
 
         /*        
         OK -  public ICollection<Postagem> GetPostagens();
@@ -188,7 +190,6 @@ namespace ForumGames.Repositories
                                             NomeCategoriaGrupo = result["Nome_Categoria_Grupo"].ToString(),
                                             Grupos = null
                                         },
-                                        CategoriaId = null,
                                         Jogadores = null,
                                         Postagens = null
                                     },
@@ -217,10 +218,141 @@ namespace ForumGames.Repositories
             }
             return listaPostagem;
         }
+
+
+
         /* Pendente */
+        /// <summary>
+        /// Inserir uma postagem com Categoria, Jogador e Grupo, incluindo o relacionamento da RL_Jogadores_Grupos 
+        /// </summary>
+        /// <param name="postagem"></param>
+        /// <returns></returns>
         public Postagem InsertPostagem(Postagem postagem)
         {
-            throw new System.NotImplementedException();
+            bool criarRelacionamento = false;
+            // Verifica se o jogador existe
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string script = @"SELECT 
+	                                J.Id AS 'Id_jogador', 
+	                                J.Nome AS 'Nome_Jogador', 
+	                                J.Usuario AS 'Nome_de_Usuario', 
+	                                J.Senha AS 'Senha_de_Usuario', 
+                                    J.Email AS 'Email_do_Usuario'
+                                FROM TB_Jogadores AS J WHERE Id = @id";
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = postagem.JogadorId;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        if (result == null || !result.HasRows || !result.Read())
+                        {
+                            throw new NaoHaJogadorException("Não há jogador com o id informado");
+                        }
+                    }
+                    // Verifica se o grupo existe
+                    string scriptGrupo = @"SELECT 
+	                                G.Id AS 'Id_Grupo',
+	                                G.Descricao AS 'Descricao_Grupo'
+                                FROM TB_Grupos AS G
+                                WHERE G.Id = @Id";
+                    using (SqlCommand cmdGrupo = new SqlCommand(scriptGrupo, connection))
+                    {
+                        cmdGrupo.Parameters.Add("Id", SqlDbType.Int).Value = postagem.GrupoId;
+                        cmdGrupo.CommandType = CommandType.Text;
+                        using (var result = cmdGrupo.ExecuteReader())
+                        {
+                            if (result == null || !result.HasRows || !result.Read())
+                            {
+                                throw new NaoHaGrupoException("Não há Grupo com o id informado");
+                            }
+                        }
+
+                    }
+                    // Verifica se a categoria do grupo existe
+                    string scriptCategoria = @"SELECT 
+                                                CG.Id AS 'Id_Categoria',
+                                                CG.Categoria AS 'Categoria_Nome'
+                                            FROM TB_Categorias_Grupos AS CG
+                                            WHERE CG.Id = @Id";
+                    using (SqlCommand cmdCategoria = new SqlCommand(scriptCategoria, connection))
+                    {
+                        cmdCategoria.Parameters.Add("Id", SqlDbType.Int).Value = postagem.CategoriaPostagemId;
+                        cmdCategoria.CommandType = CommandType.Text;
+                        using (var result = cmdCategoria.ExecuteReader())
+                        {
+                            if (result == null || !result.HasRows || !result.Read())
+                            {
+                                throw new NaoHaCategoriaException("Não há categoria com o Id informado");
+                            }
+                        }
+                    }
+                    // Verifica se o Jogador faz parte do grupo, se não fizer precisará adicionar o Relacionamento na tabela RL_Jogadores_Grupos
+                    string scriptRelacionamentoa = @"SELECT 
+	                                                JG.JogadorId AS 'ID_jogador_Relacionamento',
+	                                                JG.GrupoId AS 'Id_Grupo_Relacionamento'
+                                                FROM TB_Jogadores AS J
+                                                LEFT JOIN	RL_Jogadores_Grupos AS JG ON J.Id = JG.JogadorId
+                                                LEFT JOIN TB_Grupos AS G ON G.Id = JG.GrupoId
+                                                WHERE J.Id = @Id_Jogador AND JG.GrupoId = @Id_Grupo";
+                    using (SqlCommand cmdRelacionamento = new SqlCommand(scriptRelacionamentoa, connection))
+                    {
+                        cmdRelacionamento.Parameters.Add("Id_Grupo", SqlDbType.Int).Value = postagem.GrupoId;
+                        cmdRelacionamento.Parameters.Add("Id_Jogador", SqlDbType.Int).Value = postagem.JogadorId;
+                        cmdRelacionamento.CommandType = CommandType.Text;
+                        using (var result = cmdRelacionamento.ExecuteReader())
+                        {
+                            if (result == null || !result.HasRows || !result.Read())
+                            {
+                                criarRelacionamento = true;
+                            }
+                        }
+                    }
+
+                }
+
+            }
+            
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                // Cria o relacionamento entre jogador e o grupo
+                if (criarRelacionamento)
+                {
+                    string scriptInsertRelacionamento = @"INSERT INTO RL_Jogadores_Grupos (GrupoId, JogadorId)
+                                                                        VALUES (@GrupoId, @JogadorId)";
+                    using (SqlCommand cmdinsertRelacionamento = new SqlCommand(scriptInsertRelacionamento, connection))
+                    {
+                        cmdinsertRelacionamento.Parameters.Add("GrupoId", SqlDbType.Int).Value = postagem.GrupoId;
+                        cmdinsertRelacionamento.Parameters.Add("JogadorId", SqlDbType.Int).Value = postagem.JogadorId;
+                        cmdinsertRelacionamento.CommandType = CommandType.Text;
+                        cmdinsertRelacionamento.ExecuteNonQuery();
+                    }
+                }
+
+                string scriptInsert = @"INSERT INTO TB_Postagens 
+	                                            (Titulo, Texto, Imagem, DataHora, GrupoId, CategoriaPostagemId, JogadorId) 
+                                            VALUES
+	                                            (@Titulo, @Texto, @Imagem, @DataHora, @GrupoId, @CategoriaPostagemId, @JogadorId)";
+
+                // Execução no banco
+                using (SqlCommand cmdinsert = new SqlCommand(scriptInsert, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmdinsert.Parameters.Add("Titulo", SqlDbType.NVarChar).Value = postagem.Titulo;
+                    cmdinsert.Parameters.Add("Texto", SqlDbType.NVarChar).Value = postagem.Texto;
+                    cmdinsert.Parameters.Add("Imagem", SqlDbType.NVarChar).Value = postagem.Imagem;
+                    cmdinsert.Parameters.Add("DataHora", SqlDbType.DateTime).Value = postagem.DataHora;
+                    cmdinsert.Parameters.Add("GrupoId", SqlDbType.Int).Value = postagem.GrupoId;
+                    cmdinsert.Parameters.Add("CategoriaPostagemId", SqlDbType.Int).Value = postagem.CategoriaPostagemId;
+                    cmdinsert.Parameters.Add("JogadorId", SqlDbType.Int).Value = postagem.JogadorId;
+                    cmdinsert.CommandType = CommandType.Text;
+                    cmdinsert.ExecuteNonQuery();
+                }
+            }
+            return postagem;
         }
         /* Pendente */
         public bool UpdatePostagem(int id, Postagem postagem)
