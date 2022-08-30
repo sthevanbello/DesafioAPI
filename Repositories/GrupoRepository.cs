@@ -20,17 +20,14 @@ namespace ForumGames.Repositories
         /// </summary>
         /// <param name="grupo">Grupo informado</param>
         /// <returns>Retorna o grupo que foi inserido</returns>
-        /// <exception cref="ThereIsntCategoryException">Captura uma exception informando que a categoria informada não existe no banco de dados</exception>
+        /// <exception cref="NaoHaCategoriaException">Captura uma exception informando que a categoria informada não existe no banco de dados</exception>
         public Grupo InsertGrupo(Grupo grupo)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                string scriptInsert = @"INSERT INTO TB_Grupos 
-                                            (Descricao, CategoriaId) 
-                                        VALUES 
-                                            (@Descricao, @CategoriaId)";
+
 
                 // Verifica se a categoria informada existe no banco de dados
                 string scriptCategoria = @"SELECT 
@@ -44,24 +41,29 @@ namespace ForumGames.Repositories
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
                     {
-                        while (result != null && result.HasRows && result.Read())
-                        {
-                            using (SqlCommand cmdInsert = new SqlCommand(scriptInsert, connection))
-                            {
-                                // Declarar as variáveis por parâmetros
-                                cmdInsert.Parameters.Add("Descricao", SqlDbType.NVarChar).Value = grupo.Descricao;
-                                cmdInsert.Parameters.Add("CategoriaId", SqlDbType.NVarChar).Value = grupo.CategoriaId;
-                                cmdInsert.CommandType = CommandType.Text;
-                                cmdInsert.ExecuteNonQuery();
-                            }
-                        }
                         if (!result.HasRows)
                         {
-                            throw new ThereIsntCategoryException("Não há categoria com o id informado");
+                            throw new NaoHaCategoriaException("Não há categoria com o id informado");
                         }
                     }
                 }
+            }
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string scriptInsert = @"INSERT INTO TB_Grupos 
+                                            (Descricao, CategoriaId) 
+                                        VALUES 
+                                            (@Descricao, @CategoriaId)";
 
+                using (SqlCommand cmdInsert = new SqlCommand(scriptInsert, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmdInsert.Parameters.Add("Descricao", SqlDbType.NVarChar).Value = grupo.Descricao;
+                    cmdInsert.Parameters.Add("CategoriaId", SqlDbType.NVarChar).Value = grupo.CategoriaId;
+                    cmdInsert.CommandType = CommandType.Text;
+                    cmdInsert.ExecuteNonQuery();
+                }
             }
             return grupo;
         }
@@ -92,7 +94,8 @@ namespace ForumGames.Repositories
                                 Id = (int)result["Id_Grupo"],
                                 Descricao = result["Descricao_Grupo"].ToString(),
                                 Categoria = null,
-                                Jogadores = null
+                                Jogadores = null,
+                                Postagens = null
                             });
                         }
                     }
@@ -204,6 +207,7 @@ namespace ForumGames.Repositories
                                         NomeCategoriaGrupo = result["Nome_Categoria_Grupo"].ToString(),
                                         Grupos = null
                                     },
+                                    Postagens = null
                                 };
 
                                 if ((grupo?.Id ?? 0) > 0)
@@ -517,7 +521,7 @@ namespace ForumGames.Repositories
                     {
                         if (!result.HasRows)
                         {
-                            throw new ThereIsntCategoryException("Não há categoria com o id informado");
+                            throw new NaoHaCategoriaException("Não há categoria com o id informado");
                         }
                     }
                 }
@@ -578,11 +582,11 @@ namespace ForumGames.Repositories
                         {
                             if (!string.IsNullOrEmpty(result["Id_Postagem"].ToString()))
                             {
-                                throw new CannotDeleteException("Há alguma postagem vinculada ao grupo e por isso não pôde ser excluído");
+                                throw new NaoPodeDeletarException("Há alguma postagem vinculada ao grupo e por isso não pôde ser excluído");
                             }
                             else if (!string.IsNullOrEmpty(result["Id_Jogador"].ToString()))
                             {
-                                throw new CannotDeleteException("Há algum jogador vinculado ao grupo e por isso não pôde ser excluído");
+                                throw new NaoPodeDeletarException("Há algum jogador vinculado ao grupo e por isso não pôde ser excluído");
                             }
                         }
                     }

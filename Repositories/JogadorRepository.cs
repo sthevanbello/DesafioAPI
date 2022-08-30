@@ -532,11 +532,11 @@ namespace ForumGames.Repositories
             }
             if (jogador.Postagens.Count > 0)
             {
-                throw new CannotDeleteException("O jogador não pode ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
+                throw new NaoPodeDeletarException("O jogador não pode ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
             }
             if (jogadorGrupo.Grupos.Count > 0)
             {
-                throw new CannotDeleteException("O jogador não pode ser deletado, pois participa de algum grupo. Apague o relacionamento com esse(s) grupo(s) primeiro");
+                throw new NaoPodeDeletarException("O jogador não pode ser deletado, pois participa de algum grupo. Apague o relacionamento com esse(s) grupo(s) primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

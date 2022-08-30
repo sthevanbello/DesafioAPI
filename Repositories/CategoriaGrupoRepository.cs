@@ -148,7 +148,8 @@ namespace ForumGames.Repositories
                                     Id = (int)result["Id_Grupo"],
                                     Categoria = null,
                                     Descricao = result["Grupo_Descricao"].ToString() == "" ? null : result["Grupo_Descricao"].ToString(),
-                                    Jogadores = null
+                                    Jogadores = null,
+                                    Postagens = null
                                 };
 
                             }
@@ -268,7 +269,7 @@ namespace ForumGames.Repositories
         /// </summary>
         /// <param name="id">Id da categoria de grupo</param>
         /// <returns>Retorna se a categoria foi alterada ou não foi excluída</returns>
-        /// <exception cref="CannotDeleteException">Captura a exceção caso não seja possível excluir o item</exception>
+        /// <exception cref="NaoPodeDeletarException">Captura a exceção caso não seja possível excluir o item</exception>
         public bool DeleteCategoriaGrupo(int id)
         {
             var categoriaGrupo = GetCategoriaGrupoPorIdComGrupos(id);
@@ -278,7 +279,7 @@ namespace ForumGames.Repositories
             }
             if (categoriaGrupo.Grupos.Count > 0)
             {
-                throw new CannotDeleteException("A categoria de grupos não pôde ser deletada, pois possui grupo criado com a categoria. Apague o grupo primeiro");
+                throw new NaoPodeDeletarException("A categoria de grupos não pôde ser deletada, pois possui grupo criado com a categoria. Apague o grupo primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

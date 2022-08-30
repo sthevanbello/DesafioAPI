@@ -164,7 +164,7 @@ namespace ForumGames.Repositories
                                 var categoriaPostagem = new CategoriaPostagem
                                 {
                                     Id = (int)result["Id_Categoria"],
-                                    NomeCategoriaPostagem = (string)result["Categoria_Nome"],
+                                    NomeCategoriaPostagem = (string)result["Categoria_Nome"]
                                 };
 
                                 if ((categoriaPostagem?.Id ?? 0) > 0)
@@ -294,7 +294,7 @@ namespace ForumGames.Repositories
             }
             if (categoriaPostagem.Postagens.Count > 0)
             {
-                throw new CannotDeleteException("A categoria de postagens não pôde ser deletada, pois possui alguma postagem criada com essa categoria. Apague a postagem ou as postagens primeiro");
+                throw new NaoPodeDeletarException("A categoria de postagens não pôde ser deletada, pois possui alguma postagem criada com essa categoria. Apague a postagem ou as postagens primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
