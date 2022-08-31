@@ -202,6 +202,7 @@ namespace ForumGames.Controllers
             }
         }
 
+
         /// <summary>
         /// Atualizar a postagem de acordo com as informações fornecidas. Somente podendo alterar Título, Texto ou imagem
         /// </summary>

@@ -16,6 +16,7 @@ namespace ForumGames.Models
         [Required(ErrorMessage = "informe o seu e-mail")]
         [RegularExpression(".+\\@.+\\..+", ErrorMessage = "Insira um e-mail válido")]
         public string Email { get; set; }
+        public string Imagem { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] // Não exibe o campo no Json se o valor for null
         public IList<Grupo> Grupos { get; set; } = new List<Grupo>(); // Utilizado para retornar os grupos dos quais o jogador participa

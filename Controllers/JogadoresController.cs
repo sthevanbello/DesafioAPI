@@ -303,13 +303,53 @@ namespace ForumGames.Controllers
         }
 
         /// <summary>
+        /// Inserir um jogador no banco de dados
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        // POST - Cadastrar
+        [HttpPost("Imagem")]
+        public IActionResult InsertjogadorComImagem([FromForm] Jogador jogador, IFormFile arquivo)
+        {
+            try
+            {
+                var jogadorInserido = _jogadorRepository.InsertJogadorComImagem(jogador, arquivo);
+                return Ok(jogadorInserido);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
         /// Atualizar um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <param name="id">Id do jogador a ser atualizado</param>
         /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
         // PUT - Alterar
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult UpdateJogador(int id, Jogador jogador)
         {
             try
@@ -346,7 +386,51 @@ namespace ForumGames.Controllers
                 });
             }
         }
-
+        /// <summary>
+        /// Atualizar um jogador no banco de dados
+        /// </summary>
+        /// <param name="jogador">Jogador a ser atualizado</param>
+        /// <param name="id">Id do jogador a ser atualizado</param>
+        /// <param name="arquivo">Imagem a ser atualizada</param>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
+        // PUT - Alterar
+        [HttpPut("Imagem/{id}")]
+        public IActionResult UpdateJogadorComImagem(int id, [FromForm] Jogador jogador, IFormFile arquivo)
+        {
+            try
+            {
+                var jogadoratualizado = _jogadorRepository.UpdateJogadorComImagem(id, jogador, arquivo);
+                if (!jogadoratualizado)
+                {
+                    return NotFound(new { msg = "Jogador não encontrado. Verifique se o Id está correto" });
+                }
+                return Ok(new { msg = "Jogador atualizado com sucesso.", jogador });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
         /// <summary>
         /// Excluir um jogador no banco de dados
         /// </summary>

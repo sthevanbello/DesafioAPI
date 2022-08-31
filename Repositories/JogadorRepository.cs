@@ -1,12 +1,15 @@
 ﻿using ForumGames.Interfaces;
 using ForumGames.Models;
+using ForumGames.Utils;
 using ForumGames.Utils.Exceptions;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ForumGames.Repositories
 {
@@ -44,9 +47,35 @@ namespace ForumGames.Repositories
             }
             return jogador;
         }
-        public Jogador InsertJogadorComImagem(Jogador jogador)
+        public Jogador InsertJogadorComImagem(Jogador jogador, IFormFile arquivo)
         {
-            throw new System.NotImplementedException();
+            
+            string imagem = Upload.UploadFile(arquivo);
+            jogador.Imagem = imagem;
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"INSERT INTO TB_Jogadores 
+                                        (Nome, Email, Usuario, Senha, Imagem)
+                                    VALUES
+                                        (@Nome, @Email, @Usuario, @Senha, @Imagem)";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Nome", SqlDbType.NVarChar).Value = jogador.Nome;
+                    cmd.Parameters.Add("Email", SqlDbType.NVarChar).Value = jogador.Email;
+                    cmd.Parameters.Add("Senha", SqlDbType.NVarChar).Value = jogador.Senha;
+                    cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = jogador.Usuario;
+                    cmd.Parameters.Add("Imagem", SqlDbType.NVarChar).Value = imagem;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+                
+            }
+            return jogador;
         }
         /// <summary>
         /// Lista todos os jogadores
@@ -63,7 +92,8 @@ namespace ForumGames.Repositories
 	                                J.Nome AS 'Nome_Jogador', 
 	                                J.Usuario AS 'Nome_de_Usuario', 
 	                                J.Senha AS 'Senha_de_Usuario', 
-                                    J.Email AS 'Email_do_Usuario'
+                                    J.Email AS 'Email_do_Usuario',
+                                    J.Imagem AS 'Imagem_Jogador'
                                 FROM TB_Jogadores AS J";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
@@ -81,7 +111,8 @@ namespace ForumGames.Repositories
                                 Senha = (string)result["Senha_de_Usuario"],
                                 Email = (string)result["Email_do_Usuario"],
                                 Grupos = null,
-                                Postagens = null
+                                Postagens = null,
+                                Imagem  = result["Imagem_Jogador"].ToString()
                             });
                         }
                     }
@@ -106,7 +137,8 @@ namespace ForumGames.Repositories
 	                                J.Nome AS 'Nome_Jogador', 
 	                                J.Usuario AS 'Nome_de_Usuario', 
 	                                J.Senha AS 'Senha_de_Usuario', 
-                                    J.Email AS 'Email_do_Usuario'
+                                    J.Email AS 'Email_do_Usuario',
+                                    J.Imagem AS 'Imagem_Jogador'
                                 FROM TB_Jogadores AS J WHERE Id = @id";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
@@ -124,7 +156,8 @@ namespace ForumGames.Repositories
                                 Senha = (string)result["Senha_de_Usuario"],
                                 Email = (string)result["Email_do_Usuario"],
                                 Grupos = null,
-                                Postagens = null
+                                Postagens = null,
+                                Imagem = result["Imagem_Jogador"].ToString()
                             };
                         }
                     }
@@ -151,6 +184,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -195,7 +229,8 @@ namespace ForumGames.Repositories
                                     Email = result["Email_Do_Jogador"].ToString(),
                                     Usuario = result["Usuario_Do_Jogador"].ToString(),
                                     Senha = result["Senha_Usuario"].ToString(),
-                                    Postagens = null
+                                    Postagens = null,
+                                    Imagem = result["Imagem_Jogador"].ToString()
                                 };
 
                                 if ((jogador?.Id ?? 0) > 0)
@@ -237,10 +272,6 @@ namespace ForumGames.Repositories
 
                 string script = @"SELECT 
 	                                J.Id AS 'Id_Jogador',
-	                                J.Usuario AS 'Usuario_Do_Jogador',
-	                                J.Senha AS 'Senha_Usuario',
-	                                J.Nome AS 'Nome_Do_Jogador',
-	                                J.Email AS 'Email_Do_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -368,7 +399,8 @@ namespace ForumGames.Repositories
                                     Email = result["Email_Do_Jogador"].ToString(),
                                     Usuario = result["Usuario_Do_Jogador"].ToString(),
                                     Senha = result["Senha_Usuario"].ToString(),
-                                    Grupos = null
+                                    Grupos = null,
+                                    Imagem = result["Imagem_Jogador"].ToString()
                                 };
 
                                 if ((jogador?.Id ?? 0) > 0)
@@ -410,10 +442,6 @@ namespace ForumGames.Repositories
 
                 string script = @"SELECT 
 	                                J.Id AS 'Id_Jogador',
-	                                J.Usuario AS 'Usuario_Do_Jogador',
-	                                J.Senha AS 'Senha_Usuario',
-	                                J.Nome AS 'Nome_Do_Jogador',
-	                                J.Email AS 'Email_Do_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -511,6 +539,49 @@ namespace ForumGames.Repositories
                     cmd.Parameters.Add("Email", SqlDbType.NVarChar).Value = jogador.Email;
                     cmd.Parameters.Add("Senha", SqlDbType.NVarChar).Value = jogador.Senha;
                     cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = jogador.Usuario;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Atualiza os dados de um jogador existente no banco de dados
+        /// </summary>
+        /// <param name="id">Id do jogador</param>
+        /// <param name="jogador">Dados do jogador a ser atualizado</param>
+        /// <returns>Retorna o resultado booleano da operação</returns>
+        public bool UpdateJogadorComImagem(int id, Jogador jogador, IFormFile arquivo)
+        {
+            if (GetJogadorPorId(id) is null)
+            {
+                return false;
+            }
+            string imagem = Upload.UploadFile(arquivo);
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string script = @"UPDATE TB_Jogadores 
+                                    SET 
+                                        Nome = @Nome, 
+                                        Email = @Email,     
+                                        Senha = @Senha,
+                                        Usuario = @Usuario, 
+                                        Imagem = @Imagem
+                                WHERE Id = @Id";
+
+                // Execução no banco
+                using (SqlCommand cmd = new SqlCommand(script, connection))
+                {
+                    // Declarar as variáveis por parâmetros
+                    cmd.Parameters.Add("Id", SqlDbType.NVarChar).Value = id;
+                    cmd.Parameters.Add("Nome", SqlDbType.NVarChar).Value = jogador.Nome;
+                    cmd.Parameters.Add("Email", SqlDbType.NVarChar).Value = jogador.Email;
+                    cmd.Parameters.Add("Senha", SqlDbType.NVarChar).Value = jogador.Senha;
+                    cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = jogador.Usuario;
+                    cmd.Parameters.Add("Imagem", SqlDbType.Text).Value = imagem;
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
                 }
