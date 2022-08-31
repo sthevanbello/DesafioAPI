@@ -6,12 +6,20 @@ using System.Data;
 using System.Linq;
 using System;
 using ForumGames.Utils.Exceptions;
+using Microsoft.Extensions.Configuration;
 
 namespace ForumGames.Repositories
 {
     public class CategoriaPostagemRepository : ICategoriaPostagemRepository
     {
-        private readonly string connectionString = @"data source=NOTE_STHEVAN\SQLEXPRESS; User Id=sa; Password=Admin1234; Initial Catalog = Forum_Games";
+        public CategoriaPostagemRepository(IConfiguration configuration)
+        {
+            Configuration = configuration;
+            connectionString = Configuration.GetConnectionString("ForumGames"); // Connection String recuperada do arquivo appsettings.json
+        }
+        public IConfiguration Configuration { get; set; }
+        public string connectionString { get; set; }
+
         /// <summary>
         /// Inserir uma Categoria de postagem nova no banco de dados
         /// </summary>
@@ -40,7 +48,7 @@ namespace ForumGames.Repositories
         }
 
         /// <summary>
-        /// Listar todas as categorias de postagens cadastradas
+        /// Exibir todas as categorias de postagens cadastradas
         /// </summary>
         /// <returns>Retorna todas as categorias de postagens cadastradas</returns>
         public ICollection<CategoriaPostagem> GetAllCategoriaPostagem()
@@ -177,7 +185,7 @@ namespace ForumGames.Repositories
                             else if ((postagem?.Id ?? 0) > 0) // grupo?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
                                                               // Isso é para evitar falha de objeto nulo
                             {
-                                // Busca o jogador e adiciona o grupo na lista de grupos dos quais o jogador participa
+                                // Busca a categoria e adiciona a postagem na lista de postagem nas quais a categoria é utilizada
                                 listaCategoriaPostagem.FirstOrDefault(x => x.Id == (int)result["Id_Categoria"]).Postagens.Add(postagem);
                             }
 
@@ -284,7 +292,7 @@ namespace ForumGames.Repositories
         /// Excluir uma categoria de Postagem no banco de dados
         /// </summary>
         /// <param name="id">Id da categoria de Postagem</param>
-        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
+        /// <returns>Retorna um bool sobre a operação de exclusão a ser realizada</returns>
         public bool DeleteCategoriaPostagem(int id)
         {
             var categoriaPostagem = GetCategoriaPostagemPorIdComPostagens(id);
@@ -294,7 +302,7 @@ namespace ForumGames.Repositories
             }
             if (categoriaPostagem.Postagens.Count > 0)
             {
-                throw new NaoPodeDeletarException("A categoria de postagens não pôde ser deletada, pois possui alguma postagem criada com essa categoria. Apague a postagem ou as postagens primeiro");
+                throw new NaoPodeDeletarException("A categoria de postagens não pôde ser deletada, pois possui alguma postagem criada com essa categoria. Apague as postagens primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

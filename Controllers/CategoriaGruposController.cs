@@ -11,8 +11,9 @@ namespace ForumGames.Controllers
     [ApiController]
     public class CategoriaGruposController : ControllerBase
     {
+        // Propriedade criada para utilizar o repositório através de injeção de dependência pelo construtor
+        // Isso é feito para não instanciar um objeto de uma classe externa e manter um baixo acoplamento entre classes.
         private readonly ICategoriaGrupoRepository _categoriaGrupoRepository;
-
         public CategoriaGruposController(ICategoriaGrupoRepository categoriaGrupoRepository)
         {
             _categoriaGrupoRepository = categoriaGrupoRepository;
@@ -60,9 +61,8 @@ namespace ForumGames.Controllers
         /// Exibir todas as categorias de grupos cadastradas
         /// </summary>
         /// <returns>Retorna todas as categorias de grupos cadastradas</returns>
-        // Get
         [HttpGet]
-        public IActionResult GetCategoriaGrupo()
+        public IActionResult GetAllCategoriaGrupo()
         {
             try
             {
@@ -133,10 +133,10 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Exibir uma CategoriaGrupo e seus respectivos grupos
+        /// Exibir uma única categoria a partir do Id fornecido como parâmetro e exibe de quais grupos ela faz parte
         /// </summary>
         /// <param name="id">Id da Categoria de Grupo</param>
-        /// <returns>Retorna uma CategoriaGrupo com seus respectivos grupos</returns>
+        /// <returns>Retorna uma única <b>CategoriaGrupo</b> com seus respectivos grupos</returns>
         [HttpGet("Grupos/{id}")]
         public IActionResult GetCategoriaGrupoPorIdComGrupos(int id)
         {

@@ -18,6 +18,7 @@ CREATE TABLE TB_Jogadores(
 	Senha NVARCHAR(200) NOT NULL,
 	Nome NVARCHAR(200) NOT NULL,
 	Email NVARCHAR(250) NOT NULL,
+	Imagem NVARCHAR(1000) NULL
 
 	CONSTRAINT [PK_Jogador] PRIMARY KEY (Id) /* Define a chave primária e seu respectivo nome*/
 );
@@ -100,3 +101,5 @@ GO
 ALTER DATABASE [Forum_Jogos_XPTO] MODIFY NAME = [Forum_Games]; /*Altera o nome do banco de dados para Forum_Games */
 GO
 
+USE Forum_Games;
+GO

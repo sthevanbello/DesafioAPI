@@ -3,6 +3,7 @@ using ForumGames.Models;
 using ForumGames.Utils;
 using ForumGames.Utils.Exceptions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -15,10 +16,15 @@ namespace ForumGames.Repositories
 {
     public class JogadorRepository : IJogadorRepository
     {
-        //private IDbConnection connectionString;
-        private readonly string connectionString = @"data source=NOTE_STHEVAN\SQLEXPRESS; User Id=sa; Password=Admin1234; Initial Catalog = Forum_Games";
+        public JogadorRepository(IConfiguration configuration)
+        {
+            Configuration = configuration;
+            connectionString = Configuration.GetConnectionString("ForumGames"); // Connection String recuperada do arquivo appsettings.json
+        }
+        public IConfiguration Configuration { get; set; }
+        public string connectionString { get; set; }
         /// <summary>
-        /// Insere um jogador no banco
+        /// Inserir um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser inserido</param>
         /// <returns>Retorna um jogador após inserí-lo no banco</returns>
@@ -47,6 +53,12 @@ namespace ForumGames.Repositories
             }
             return jogador;
         }
+        /// <summary>
+        /// Inserir um jogador com imagem no banco de dados. Extensões permitidas: jpg, jpeg, png, svg
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <param name="arquivo">Imagem a ser inserida</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
         public Jogador InsertJogadorComImagem(Jogador jogador, IFormFile arquivo)
         {
             
@@ -78,9 +90,10 @@ namespace ForumGames.Repositories
             return jogador;
         }
         /// <summary>
-        /// Lista todos os jogadores
+        /// Exibir uma lista de todos os jogadores cadastrados. 
+        /// Para visualizar a imagem inserida é necessário utilizar o endereço: https://localhost:5001/StaticFiles/Images/nome_da_imagem.extensão
         /// </summary>
-        /// <returns>Retorna uma lista de jogadores</returns>
+        /// <returns>Retorna todos os jogadores</returns>
         public ICollection<Jogador> GetJogadores()
         {
             var listaJogadores = new List<Jogador>();
@@ -97,7 +110,7 @@ namespace ForumGames.Repositories
                                 FROM TB_Jogadores AS J";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
-                    // Ler todos os itens da consulta com foreach e while
+                    // Ler todos os itens da consulta com while
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
                     {
@@ -122,10 +135,11 @@ namespace ForumGames.Repositories
             return listaJogadores;
         }
         /// <summary>
-        /// Mostra um jogador a partir do Id fornecido
+        /// Exibir um jogador passando o seu Id
+        /// Para visualizar a imagem inserida é necessário utilizar o endereço: https://localhost:5001/StaticFiles/Images/nome_da_imagem.extensão
         /// </summary>
-        /// <param name="id">Id do jogador</param>
-        /// <returns>Retorna um <b>Jogador</b></returns>
+        /// <param name="id">Id do jogador a ser buscado</param>
+        /// <returns>Retorna um único jogador</returns>
         public Jogador GetJogadorPorId(int id)
         {
             Jogador jogador = null;
@@ -167,10 +181,9 @@ namespace ForumGames.Repositories
             return jogador;
         }
         /// <summary>
-        /// Lista os jogadores que participam de grupos.
+        /// Exibir uma lista de todos os jogadores que participam de algum grupo
         /// </summary>
-        /// <returns>Retorna o Jogador com os grupos dos quais participa</returns>
-        /// <exception cref="System.NotImplementedException"></exception>
+        /// <returns>Retorna os jogadores e seus respectivos grupos</returns>
         public ICollection<Jogador> GetJogadoresComGrupos()
         {
             IList<Jogador> listaJogadores = new List<Jogador>();
@@ -240,23 +253,23 @@ namespace ForumGames.Repositories
 
                                 listaJogadores.Add(jogador);
                             }
-                            else if ((grupo?.Id ?? 0) > 0) // grupo?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
+                            else if ((grupo?.Id ?? 0) > 0)  // grupo?.Id ?? 0 -> Garante que se o grupo for nulo, atribui o valor 0 ao Id e compara se é maior do que zero.
+                                                            // Isso é utilizado para evitar objeto nulo
                             {
                                 // Busca o jogador e adiciona o grupo na lista de grupos dos quais o jogador participa
                                 listaJogadores.FirstOrDefault(x => x.Id == (int)result["Id_Jogador"]).Grupos.Add(grupo);
                             }
                         }
                     }
-
                 }
             }
             return listaJogadores;
         }
         /// <summary>
-        /// Lista um jogador e os grupos dos quais ele participa
+        /// Exibir um jogador e os grupos dos quais ele participa
         /// </summary>
-        /// <param name="id">Id do jogador</param>
-        /// <returns>Retorna um <b>Jogador</b></returns>
+        /// <param name="id">Id do jogador a ser buscado</param>
+        /// <returns>Retorna o jogador e os grupos dos quais ele participa</returns>
         public Jogador GetJogadorPorIdComGrupos(int id)
         {
             Jogador jogador = GetJogadorPorId(id);
@@ -317,9 +330,9 @@ namespace ForumGames.Repositories
             return jogador;
         }
         /// <summary>
-        /// Lista todos os jogadores que fizeram postagens
+        /// Exibir uma lista de todos os jogadores e as suas postagens feitas
         /// </summary>
-        /// <returns>Retorna uma <b>List</b> com todos os jogadores que fizeram postagens</returns>
+        /// <returns>Retorna os jogadores e suas respectivas postagens</returns>
         public ICollection<Jogador> GetJogadoresComPostagens()
         {
             IList<Jogador> listaJogadores = new List<Jogador>();
@@ -431,7 +444,7 @@ namespace ForumGames.Repositories
         /// <returns>Retorna um <b>Jogador</b> com as suas postagens feitas</returns>
         public Jogador GetJogadorPorIdComPostagens(int id)
         {
-            Jogador jogador = GetJogadorPorId(id);
+            Jogador jogador = GetJogadorPorId(id); // Verifica se o jogador existe no banco de dados
             if (jogador is null)
             {
                 return null;
@@ -508,11 +521,11 @@ namespace ForumGames.Repositories
             return jogador;
         }
         /// <summary>
-        /// Atualiza os dados de um jogador existente no banco de dados
+        /// Atualizar um jogador no banco de dados
         /// </summary>
-        /// <param name="id">Id do jogador</param>
-        /// <param name="jogador">Dados do jogador a ser atualizado</param>
-        /// <returns>Retorna o resultado booleano da operação</returns>
+        /// <param name="jogador">Jogador a ser atualizado</param>
+        /// <param name="id">Id do jogador a ser atualizado</param>
+        /// <returns>Retorna uma mensagem sobre a operação de atualização a ser realizada</returns>
         public bool UpdateJogador(int id, Jogador jogador)
         {
             if (GetJogadorPorId(id) is null)
@@ -548,12 +561,12 @@ namespace ForumGames.Repositories
         }
 
         /// <summary>
-        /// Atualiza os dados de um jogador existente no banco de dados
+        /// Atualizar um jogador com imagem no banco de dados. Extensões permitidas: jpg, jpeg, png, svg
         /// </summary>
-        /// <param name="id">Id do jogador</param>
-        /// <param name="jogador">Dados do jogador a ser atualizado</param>
-        /// <param name="arquivo">Dados do jogador a ser atualizado</param>
-        /// <returns>Retorna o resultado booleano da operação</returns>
+        /// <param name="jogador">Jogador a ser atualizado</param>
+        /// <param name="id">Id do jogador a ser atualizado</param>
+        /// <param name="arquivo">Imagem a ser atualizada</param>
+        /// <returns>Retorna uma mensagem sobre a operação de atualização a ser realizada</returns>
         public bool UpdateJogadorComImagem(int id, Jogador jogador, IFormFile arquivo)
         {
             if (GetJogadorPorId(id) is null)
@@ -605,11 +618,11 @@ namespace ForumGames.Repositories
             }
             if (jogador.Postagens.Count > 0)
             {
-                throw new NaoPodeDeletarException("O jogador não pode ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
+                throw new NaoPodeDeletarException("O jogador não pôde ser deletado, pois possui postagens em seu nome. Apague as postagens primeiro");
             }
             if (jogadorGrupo.Grupos.Count > 0)
             {
-                throw new NaoPodeDeletarException("O jogador não pode ser deletado, pois participa de algum grupo. Apague o relacionamento com esse(s) grupo(s) primeiro");
+                throw new NaoPodeDeletarException("O jogador não pôde ser deletado, pois participa de algum grupo. Apague o relacionamento com esse(s) grupo(s) primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

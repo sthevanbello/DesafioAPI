@@ -31,7 +31,6 @@ namespace ForumGames
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -50,14 +49,14 @@ namespace ForumGames
                 var xmlArquivo = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlArquivo));
             });
+
             // AddScoped é necessário para realizar a injeção de dependência nos repositórios
+
             services.AddScoped<IJogadorRepository, JogadorRepository>();
             services.AddScoped<ICategoriaGrupoRepository, CategoriaGrupoRepository>();
             services.AddScoped<ICategoriaPostagemRepository, CategoriaPostagemRepository>();
             services.AddScoped<IGrupoRepository, GrupoRepository>();
-            services.AddScoped<IPostagemRepository, PostagemRepository>();
-            //services.AddScoped<IJogadorGrupoRepository>();
-
+            services.AddScoped<IPostagemRepository, PostagemRepository>();         
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,7 +83,7 @@ namespace ForumGames
                 RequestPath = "/StaticFiles"
             });
 
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

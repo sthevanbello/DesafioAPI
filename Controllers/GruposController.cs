@@ -13,15 +13,15 @@ namespace ForumGames.Controllers
     [ApiController]
     public class GruposController : ControllerBase
     {
+        // Propriedade criada para utilizar o repositório através de injeção de dependência pelo construtor
+        // Isso é feito para não instanciar um objeto de uma classe externa e manter um baixo acoplamento entre classes.
         private readonly IGrupoRepository _grupoRepository;
-
         public GruposController(IGrupoRepository grupoRepository)
         {
             _grupoRepository = grupoRepository;
         }
-
         /// <summary>
-        /// Inserir um grupo no banco de dados com uma categoria existente
+        /// Inserir um grupo no banco de dados
         /// </summary>
         /// <param name="grupo">Grupo informado</param>
         /// <returns>Retorna o grupo que foi inserido</returns>
@@ -347,6 +347,14 @@ namespace ForumGames.Controllers
                 {
                     msg = "Falha ao atualizar grupo",
                     erro = ex.Message
+                });
+            }
+            catch (NaoPodeDeletarException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha ao atualizar o grupo",
+                    erro = ex.Message,
                 });
             }
             catch (Exception ex)

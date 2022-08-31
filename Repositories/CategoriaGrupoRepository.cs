@@ -6,12 +6,19 @@ using System.Data;
 using ForumGames.Utils.Exceptions;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace ForumGames.Repositories
 {
     public class CategoriaGrupoRepository : ICategoriaGrupoRepository
     {
-        private readonly string connectionString = @"data source=NOTE_STHEVAN\SQLEXPRESS; User Id=sa; Password=Admin1234; Initial Catalog = Forum_Games";
+        public CategoriaGrupoRepository(IConfiguration configuration)
+        {
+            Configuration = configuration;
+            connectionString = Configuration.GetConnectionString("ForumGames"); // Connection String recuperada do arquivo appsettings.json
+        }
+        public IConfiguration Configuration { get; set; }
+        public string connectionString { get; set; }
 
         /// <summary>
         /// Inserir uma Categoria de grupo nova no banco de dados
@@ -41,7 +48,7 @@ namespace ForumGames.Repositories
         }
 
         /// <summary>
-        /// Listar todas as categorias de grupos cadastradas
+        /// Exibir todas as categorias de grupos cadastradas
         /// </summary>
         /// <returns>Retorna todas as categorias de grupos cadastradas</returns>
         public ICollection<CategoriaGrupo> GetAllCategoriaGrupo()
@@ -57,7 +64,7 @@ namespace ForumGames.Repositories
 
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
-                    // Ler todos os itens da consulta com foreach e while
+                    // Ler todos os itens da consulta com while
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
                     {
@@ -77,7 +84,7 @@ namespace ForumGames.Repositories
             return listaCategoriaGrupo;
         }
         /// <summary>
-        /// Exibe uma única categoria a partir do Id fornecido como parâmetro
+        /// Exibir uma única categoria a partir do Id fornecido como parâmetro
         /// </summary>
         /// <param name="id">Id da Categoria de Grupo</param>
         /// <returns>Retorna uma única <b>CategoriaGrupo</b> </returns>
@@ -94,7 +101,6 @@ namespace ForumGames.Repositories
                                 WHERE CG.Id = @Id";
                 using (SqlCommand cmd = new SqlCommand(script, connection))
                 {
-                    // Ler todos os itens da consulta com foreach e while
                     cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
                     cmd.CommandType = CommandType.Text;
                     using (var result = cmd.ExecuteReader())
@@ -115,9 +121,9 @@ namespace ForumGames.Repositories
             return categoriaGrupo;
         }
         /// <summary>
-        /// Listar todas as categorias de grupos com seus respectivos grupos
+        /// Exibir todas as categorias e todos os grupos cadastrados
         /// </summary>
-        /// <returns>todas as categorias de grupos com seus respectivos grupos</returns>
+        /// <returns>Retorna todas as categorias e todos os grupos cadastrados</returns>
         public IList<CategoriaGrupo> GetAllCategoriaGrupoComGrupos()
         {
             IList<CategoriaGrupo> listaCategoriaGrupo = new List<CategoriaGrupo>();
@@ -147,7 +153,7 @@ namespace ForumGames.Repositories
                                 {
                                     Id = (int)result["Id_Grupo"],
                                     Categoria = null,
-                                    Descricao = result["Grupo_Descricao"].ToString() == "" ? null : result["Grupo_Descricao"].ToString(),
+                                    Descricao = result["Grupo_Descricao"].ToString(),
                                     Jogadores = null,
                                     Postagens = null
                                 };
@@ -170,7 +176,7 @@ namespace ForumGames.Repositories
                             }
                             else if ((grupo?.Id ?? 0) > 0) // grupo?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
                             {
-                                // Busca o jogador e adiciona o grupo na lista de grupos dos quais o jogador participa
+                                // Busca a categoria e adiciona o grupo na lista de grupos nos quais a categoria é utilizada
                                 listaCategoriaGrupo.FirstOrDefault(x => x.Id == (int)result["Id_Categoria"]).Grupos.Add(grupo);
                             }
 
@@ -181,7 +187,7 @@ namespace ForumGames.Repositories
             return listaCategoriaGrupo;
         }
         /// <summary>
-        /// Exibe uma única categoria a partir do Id fornecido como parâmetro e exibe de quais grupos ela faz parte
+        /// Exibir uma única categoria a partir do Id fornecido como parâmetro e exibe de quais grupos ela faz parte
         /// </summary>
         /// <param name="id">Id da Categoria de Grupo</param>
         /// <returns>Retorna uma única <b>CategoriaGrupo</b> com seus respectivos grupos</returns>
@@ -265,11 +271,10 @@ namespace ForumGames.Repositories
             return true;
         }
         /// <summary>
-        /// Excluir uma categoria se não houver um grupo associado
+        /// Excluir uma categoria de Grupo no banco de dados
         /// </summary>
-        /// <param name="id">Id da categoria de grupo</param>
-        /// <returns>Retorna se a categoria foi alterada ou não foi excluída</returns>
-        /// <exception cref="NaoPodeDeletarException">Captura a exceção caso não seja possível excluir o item</exception>
+        /// <param name="id">Id da categoria de Grupo</param>
+        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
         public bool DeleteCategoriaGrupo(int id)
         {
             var categoriaGrupo = GetCategoriaGrupoPorIdComGrupos(id);
@@ -279,7 +284,7 @@ namespace ForumGames.Repositories
             }
             if (categoriaGrupo.Grupos.Count > 0)
             {
-                throw new NaoPodeDeletarException("A categoria de grupos não pôde ser deletada, pois possui grupo criado com a categoria. Apague o grupo primeiro");
+                throw new NaoPodeDeletarException("A categoria de grupos não pôde ser deletada, pois possui algum grupo criado que está usando a categoria. Apague o grupo primeiro");
             }
             using (SqlConnection connection = new SqlConnection(connectionString))
             {

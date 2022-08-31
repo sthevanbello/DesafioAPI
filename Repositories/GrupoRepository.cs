@@ -8,12 +8,19 @@ using System;
 using ForumGames.Utils.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Configuration;
 
 namespace ForumGames.Repositories
 {
     public class GrupoRepository : IGrupoRepository
     {
-        private readonly string connectionString = @"data source=NOTE_STHEVAN\SQLEXPRESS; User Id=sa; Password=Admin1234; Initial Catalog = Forum_Games";
+        public GrupoRepository(IConfiguration configuration)
+        {
+            Configuration = configuration;
+            connectionString = Configuration.GetConnectionString("ForumGames"); // Connection String recuperada do arquivo appsettings.json
+        }
+        public IConfiguration Configuration { get; set; }
+        public string connectionString { get; set; }
 
         /// <summary>
         /// Inserir um grupo no banco de dados
@@ -70,7 +77,7 @@ namespace ForumGames.Repositories
         /// <summary>
         /// Exibir todos os Grupos contidos no banco de dados
         /// </summary>
-        /// <returns>Retorna uma <b>List</b> de Grupos</returns>
+        /// <returns>Retorna uma <b>Lista</b> de Grupos</returns>
         public ICollection<Grupo> GetAllGrupos()
         {
             var listaGrupos = new List<Grupo>();
@@ -105,10 +112,10 @@ namespace ForumGames.Repositories
             return listaGrupos;
         }
         /// <summary>
-        /// Exibir um grupo a partir do Id
+        /// Exibir um grupo passando o seu Id
         /// </summary>
-        /// <param name="id">Id do grupo</param>
-        /// <returns>Retorna um <b>Grupo</b> a partir do id</returns>
+        /// <param name="id">Id do grupo a ser buscado</param>
+        /// <returns>Retorna um único grupo</returns>
         public Grupo GetGrupoPorId(int id)
         {
             Grupo grupo = null;
@@ -144,9 +151,9 @@ namespace ForumGames.Repositories
             return grupo;
         }
         /// <summary>
-        /// Exibir uma lista de grupos com os jogadores que integram o grupo
+        /// Exibir uma lista de todos os grupos e os jogadores desses grupos
         /// </summary>
-        /// <returns>Retorna uma lista de grupos com os jogadores integram o grupo</returns>
+        /// <returns>Retorna uma lista de todos os grupos e os jogadores desses grupos</returns>
         public ICollection<Grupo> GetAllGruposComJogadores()
         {
             IList<Grupo> listaGrupos = new List<Grupo>();
@@ -195,8 +202,9 @@ namespace ForumGames.Repositories
                                     Imagem = result["Imagem_Jogador"].ToString()
                                 };
                             }
-
-                            if (!listaGrupos.Any(x => x.Id == (int)result["Id_Grupo"]))
+                            // Verifica se há um grupo na lista de grupos que o ID seja igual ao retornado na consulta
+                            // Caso não haja, é criado um grupo com os dados retornados na consulta
+                            if (!listaGrupos.Any(x => x.Id == (int)result["Id_Grupo"])) 
                             {
                                 var grupo = new Grupo
                                 {
@@ -219,14 +227,13 @@ namespace ForumGames.Repositories
 
                                 listaGrupos.Add(grupo);
                             }
-                            else if ((jogador?.Id ?? 0) > 0) // grupo?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
+                            else if ((jogador?.Id ?? 0) > 0) // jogador?.Id ?? 0 -> Garante que se for nulo, atribui o valor 0 e compara se é maior do que zero.
                             {
-                                // Busca o jogador e adiciona o grupo na lista de grupos dos quais o jogador participa
+                                // Busca o grupo e o adiciona o jogador à lista de grupos dos quais o jogador participa
                                 listaGrupos.FirstOrDefault(x => x.Id == (int)result["Id_Grupo"]).Jogadores.Add(jogador);
                             }
                         }
                     }
-
                 }
             }
             return listaGrupos;
@@ -512,6 +519,7 @@ namespace ForumGames.Repositories
             {
                 return false;
             }
+            // Verifica se a categoria informada existe
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -534,6 +542,36 @@ namespace ForumGames.Repositories
                     }
                 }
             }
+            // Verifica se há postagem vinculada ao grupo e se houver não poderá atualizar
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                // Execução no banco
+                string scriptSelect = @"SELECT 
+	                                        G.Id AS 'Id_Grupo',
+	                                        G.Descricao AS 'Descricao_Grupo',
+	                                        P.Id AS 'Id_Postagem',
+	                                        P.Titulo AS 'Titulo_Postagem'
+                                        FROM TB_Grupos AS G
+                                        LEFT JOIN TB_Postagens AS P ON P.GrupoId = G.Id
+                                        WHERE G.Id = @Id";
+                using (SqlCommand cmd = new SqlCommand(scriptSelect, connection))
+                {
+                    cmd.Parameters.Add("Id", SqlDbType.Int).Value = id;
+                    cmd.CommandType = CommandType.Text;
+                    using (var result = cmd.ExecuteReader())
+                    {
+                        while (result != null && result.HasRows && result.Read())
+                        {
+                            if (!string.IsNullOrEmpty(result["Id_Postagem"].ToString()))
+                            {
+                                throw new NaoPodeDeletarException("Há alguma postagem vinculada ao grupo e por isso o grupo não pôde ser atualizado");
+                            }
+                        }
+                    }
+                }
+            }
+            // Atualiza se a categoria for válida e se não houver postagens
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -566,6 +604,8 @@ namespace ForumGames.Repositories
             {
                 return false;
             }
+            // Verifica se há alguma postagem vinculada ao grupo ou se há algum jogador vinculado ao grupo.
+            // Se houve alguma dessas condiçõs, uma exception personalisada será capturada e informará qual é a falha.
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
@@ -600,6 +640,7 @@ namespace ForumGames.Repositories
                     }
                 }
             }
+            // Caso não haja postagens e jogadores cinculados ao grupo, o grupo poderá ser deletado
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();

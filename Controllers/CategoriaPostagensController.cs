@@ -13,8 +13,9 @@ namespace ForumGames.Controllers
     [ApiController]
     public class CategoriaPostagensController : ControllerBase
     {
+        // Propriedade criada para utilizar o repositório através de injeção de dependência pelo construtor
+        // Isso é feito para não instanciar um objeto de uma classe externa e manter um baixo acoplamento entre classes.
         private readonly ICategoriaPostagemRepository _categoriaPostagemRepository;
-
         public CategoriaPostagensController(ICategoriaPostagemRepository categoriaPostagemRepository)
         {
             _categoriaPostagemRepository = categoriaPostagemRepository;
@@ -63,7 +64,6 @@ namespace ForumGames.Controllers
         /// Exibir todas as categorias de postagens cadastradas
         /// </summary>
         /// <returns>Retorna todas as categorias de postagens cadastradas</returns>
-        // Get
         [HttpGet]
         public IActionResult GetAllCategoriaPostagem()
         {

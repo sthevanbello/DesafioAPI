@@ -14,18 +14,96 @@ namespace ForumGames.Controllers
     [ApiController]
     public class JogadoresController : ControllerBase
     {
+        // Propriedade criada para utilizar o repositório através de injeção de dependência pelo construtor
+        // Isso é feito para não instanciar um objeto de uma classe externa e manter um baixo acoplamento entre classes.
         private readonly IJogadorRepository _jogadorRepository;
-
-
         public JogadoresController(IJogadorRepository jogadorRepository)
         {
             _jogadorRepository = jogadorRepository;
         }
         /// <summary>
-        /// Exibir uma lista de todos os jogadores cadastrados
+        /// Inserir um jogador no banco de dados
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        [HttpPost]
+        public IActionResult Insertjogador(Jogador jogador)
+        {
+            try
+            {
+                var jogadorInserido = _jogadorRepository.InsertJogador(jogador);
+                return Ok(jogadorInserido);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Inserir um jogador com imagem no banco de dados. Extensões permitidas: jpg, jpeg, png, svg
+        /// </summary>
+        /// <param name="jogador">Jogador a ser inserido</param>
+        /// <param name="arquivo">Imagem a ser inserida</param>
+        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
+        [HttpPost("Imagem")]
+        public IActionResult InsertjogadorComImagem([FromForm] Jogador jogador, IFormFile arquivo)
+        {
+            try
+            {
+                var jogadorInserido = _jogadorRepository.InsertJogadorComImagem(jogador, arquivo);
+                return Ok(jogadorInserido);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na conexão",
+                    erro = ex.Message,
+                });
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na sintaxe do código SQL",
+                    erro = ex.Message,
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    msg = "Falha na definição do código",
+                    erro = ex.Message
+                });
+            }
+        }
+        /// <summary>
+        /// Exibir uma lista de todos os jogadores cadastrados. 
+        /// Para visualizar a imagem inserida é necessário utilizar o endereço: https://localhost:5001/StaticFiles/Images/nome_da_imagem.extensão
         /// </summary>
         /// <returns>Retorna todos os jogadores</returns>
-        // Get - Consultar
         [HttpGet]
         public IActionResult GetJogadores()
         {
@@ -62,6 +140,7 @@ namespace ForumGames.Controllers
         }
         /// <summary>
         /// Exibir um jogador passando o seu Id
+        /// Para visualizar a imagem inserida é necessário utilizar o endereço: https://localhost:5001/StaticFiles/Images/nome_da_imagem.extensão
         /// </summary>
         /// <param name="id">Id do jogador a ser buscado</param>
         /// <returns>Retorna um único jogador</returns>
@@ -140,7 +219,6 @@ namespace ForumGames.Controllers
                 });
             }
         }
-
         /// <summary>
         /// Exibir um jogador e os grupos dos quais ele participa
         /// </summary>
@@ -221,10 +299,11 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Exibir Jogador com as postagens feitas
+        /// Mostra um jogador e todas as suas postagens a partir do Id fornecido - 
+        /// Se não houver postagens, mostra o jogador e o campo postagem vazio
         /// </summary>
-        /// <param name="id">Id do jogador a ser buscado</param>
-        /// <returns>Retorna um <b>Jogador</b> com as postagens</returns>
+        /// <param name="id">Id do jogador</param>
+        /// <returns>Retorna um <b>Jogador</b> com as suas postagens feitas</returns>
         [HttpGet("Postagens/{id}")]
         public IActionResult GetJogadorPorIdComPostagens(int id)
         {
@@ -262,94 +341,14 @@ namespace ForumGames.Controllers
                 });
             }
         }
-        /// <summary>
-        /// Inserir um jogador no banco de dados
-        /// </summary>
-        /// <param name="jogador">Jogador a ser inserido</param>
-        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
-        // POST - Cadastrar
-        [HttpPost]
-        public IActionResult Insertjogador(Jogador jogador)
-        {
-            try
-            {
-                var jogadorInserido = _jogadorRepository.InsertJogador(jogador);
-                return Ok(jogadorInserido);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na conexão",
-                    erro = ex.Message,
-                });
-            }
-            catch (SqlException ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na sintaxe do código SQL",
-                    erro = ex.Message,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na definição do código",
-                    erro = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Inserir um jogador no banco de dados
-        /// </summary>
-        /// <param name="jogador">Jogador a ser inserido</param>
-        /// <param name="arquivo">Arquivo a ser inserido</param>
-        /// <returns>Retorna um jogador após inserí-lo no banco</returns>
-        // POST - Cadastrar
-        [HttpPost("Imagem")]
-        public IActionResult InsertjogadorComImagem([FromForm] Jogador jogador, IFormFile arquivo)
-        {
-            try
-            {
-                var jogadorInserido = _jogadorRepository.InsertJogadorComImagem(jogador, arquivo);
-                return Ok(jogadorInserido);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na conexão",
-                    erro = ex.Message,
-                });
-            }
-            catch (SqlException ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na sintaxe do código SQL",
-                    erro = ex.Message,
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    msg = "Falha na definição do código",
-                    erro = ex.Message
-                });
-            }
-        }
+        
 
         /// <summary>
         /// Atualizar um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <param name="id">Id do jogador a ser atualizado</param>
-        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
-        // PUT - Alterar
+        /// <returns>Retorna uma mensagem sobre a operação de atualização a ser realizada</returns>
         [HttpPut("{id}")]
         public IActionResult UpdateJogador(int id, Jogador jogador)
         {
@@ -388,13 +387,12 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Atualizar um jogador no banco de dados
+        /// Atualizar um jogador com imagem no banco de dados. Extensões permitidas: jpg, jpeg, png, svg
         /// </summary>
         /// <param name="jogador">Jogador a ser atualizado</param>
         /// <param name="id">Id do jogador a ser atualizado</param>
         /// <param name="arquivo">Imagem a ser atualizada</param>
-        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
-        // PUT - Alterar
+        /// <returns>Retorna uma mensagem sobre a operação de atualização a ser realizada</returns>
         [HttpPut("Imagem/{id}")]
         public IActionResult UpdateJogadorComImagem(int id, [FromForm] Jogador jogador, IFormFile arquivo)
         {
@@ -433,10 +431,10 @@ namespace ForumGames.Controllers
             }
         }
         /// <summary>
-        /// Excluir um jogador no banco de dados
+        /// Deletar um jogador existente no banco de dados se ele não houver feito qualquer postagem
         /// </summary>
-        /// <returns>Retorna uma mensagem sobre a operação de exclusão a ser realizada</returns>
-        // DELETE - Deletar
+        /// <param name="id">Id do jogador</param>
+        /// <returns>Retorna o resultado booleano da operação</returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteJogador(int id)
         {
