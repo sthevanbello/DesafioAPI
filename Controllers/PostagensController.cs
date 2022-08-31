@@ -145,7 +145,7 @@ namespace ForumGames.Controllers
         /// <returns></returns>
         // POST - Cadastrar
         [HttpPost]
-        public IActionResult Insertjogador(Postagem postagem)
+        public IActionResult InsertPostagem(Postagem postagem)
         {
             try
             {

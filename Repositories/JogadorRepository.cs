@@ -333,6 +333,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -551,6 +552,7 @@ namespace ForumGames.Repositories
         /// </summary>
         /// <param name="id">Id do jogador</param>
         /// <param name="jogador">Dados do jogador a ser atualizado</param>
+        /// <param name="arquivo">Dados do jogador a ser atualizado</param>
         /// <returns>Retorna o resultado booleano da operação</returns>
         public bool UpdateJogadorComImagem(int id, Jogador jogador, IFormFile arquivo)
         {

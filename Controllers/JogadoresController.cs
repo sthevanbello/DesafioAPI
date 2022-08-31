@@ -306,6 +306,7 @@ namespace ForumGames.Controllers
         /// Inserir um jogador no banco de dados
         /// </summary>
         /// <param name="jogador">Jogador a ser inserido</param>
+        /// <param name="arquivo">Arquivo a ser inserido</param>
         /// <returns>Retorna um jogador após inserí-lo no banco</returns>
         // POST - Cadastrar
         [HttpPost("Imagem")]

@@ -160,6 +160,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -190,7 +191,8 @@ namespace ForumGames.Repositories
                                     Usuario = result["Usuario_Do_Jogador"].ToString(),
                                     Senha = result["Senha_Usuario"].ToString(),
                                     Postagens = null,
-                                    Grupos = null
+                                    Grupos = null,
+                                    Imagem = result["Imagem_Jogador"].ToString()
                                 };
                             }
 
@@ -252,6 +254,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -284,7 +287,8 @@ namespace ForumGames.Repositories
                                     Usuario = result["Usuario_Do_Jogador"].ToString(),
                                     Senha = result["Senha_Usuario"].ToString(),
                                     Postagens = null,
-                                    Grupos = null
+                                    Grupos = null,
+                                    Imagem = result["Imagem_Jogador"].ToString()
                                 };
                                 grupo.Jogadores.Add(jogador);
                             }
@@ -312,6 +316,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -364,7 +369,8 @@ namespace ForumGames.Repositories
                                         Usuario = result["Usuario_Do_Jogador"].ToString(),
                                         Senha = result["Senha_Usuario"].ToString(),
                                         Grupos = null,
-                                        Postagens = null
+                                        Postagens = null,
+                                        Imagem = result["Imagem_Jogador"].ToString()
                                     }
                                 };
                             }
@@ -427,6 +433,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
 	                                G.Descricao AS 'Descricao_Grupo',
 	                                G.CategoriaId AS 'Id_Categoria_Grupo',
@@ -481,7 +488,8 @@ namespace ForumGames.Repositories
                                         Usuario = result["Usuario_Do_Jogador"].ToString(),
                                         Senha = result["Senha_Usuario"].ToString(),
                                         Grupos = null,
-                                        Postagens = null
+                                        Postagens = null,
+                                        Imagem = result["Imagem_Jogador"].ToString()
                                     }
                                 };
                             }

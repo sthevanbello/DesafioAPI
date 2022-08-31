@@ -141,6 +141,7 @@ namespace ForumGames.Repositories
 	                                J.Senha AS 'Senha_Usuario',
 	                                J.Nome AS 'Nome_Do_Jogador',
 	                                J.Email AS 'Email_Do_Jogador',
+                                    J.Imagem AS 'Imagem_Jogador',
 	                                RL.GrupoId AS 'Id_Grupo',
                                     G.Id AS 'Id_Grupo_Postagem',
 	                                G.Descricao AS 'Descricao_Grupo',
@@ -201,7 +202,8 @@ namespace ForumGames.Repositories
                                         Usuario = result["Usuario_Do_Jogador"].ToString(),
                                         Senha = result["Senha_Usuario"].ToString(),
                                         Grupos = null,
-                                        Postagens = null
+                                        Postagens = null,
+                                        Imagem = result["Imagem_Jogador"].ToString()
                                     },
                                     CategoriaPostagem = new CategoriaPostagem
                                     {
@@ -387,10 +389,6 @@ namespace ForumGames.Repositories
                     cmd.Parameters.Add("Titulo", SqlDbType.NVarChar).Value = postagem.Titulo;
                     cmd.Parameters.Add("Texto", SqlDbType.NVarChar).Value = postagem.Texto;
                     cmd.Parameters.Add("Imagem", SqlDbType.NVarChar).Value = postagem.Imagem;
-                    //cmd.Parameters.Add("Usuario", SqlDbType.DateTime).Value = postagem.DataHora;
-                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.GrupoId;
-                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.CategoriaPostagemId;
-                    //cmd.Parameters.Add("Usuario", SqlDbType.NVarChar).Value = postagem.JogadorId;
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
                 }
