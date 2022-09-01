@@ -7,6 +7,7 @@ namespace ForumGames.Models
 {
     public class Grupo
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
         
         [Required(ErrorMessage = "Informe a descrição do grupo")]

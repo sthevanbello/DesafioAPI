@@ -6,6 +6,7 @@ namespace ForumGames.Models
     // Categoria dos grupos
     public class CategoriaGrupo
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
         public string NomeCategoriaGrupo { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] // Não exibe o campo no Json se o valor for null

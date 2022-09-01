@@ -6,6 +6,7 @@ namespace ForumGames.Models
 {
     public class Postagem
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
         [Required(ErrorMessage = "Informe o título da postagem")]
         public string Titulo { get; set; }

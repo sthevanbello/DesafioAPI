@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ForumGames.Models
 {
@@ -7,6 +8,7 @@ namespace ForumGames.Models
     // Com isso o relacionamento de N:M é feito atrás de Listas
     public class JogadorGrupo
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
         [Required(ErrorMessage = "Informe o Id do grupo")]
         public int GrupoId { get; set; }

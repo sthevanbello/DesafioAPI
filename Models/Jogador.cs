@@ -6,6 +6,7 @@ namespace ForumGames.Models
 {
     public class Jogador
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public int Id { get; set; }
         public string Usuario { get; set; }
         [Required(ErrorMessage = "Informe a sua senha")]
