@@ -20,7 +20,7 @@ namespace ForumGames.Utils
                 var pasta = Path.Combine("StaticFiles", diretorio);
                 var caminho = Path.Combine(Directory.GetCurrentDirectory(), pasta);
                 // Verifica se existe um arquivo para ser salvo
-                if (arquivo.Length > 0)
+                if (arquivo is not null)
                 {
                     string nomeArquivo = ContentDispositionHeaderValue.Parse(arquivo.ContentDisposition).FileName.Trim('"');
                     if (ValidarExtensao(extensoesPermitidas, nomeArquivo))
